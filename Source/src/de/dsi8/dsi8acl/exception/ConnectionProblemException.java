@@ -17,23 +17,40 @@
  * along with this source code; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  ******************************************************************************/
-package de.dsi8.dsi8acl.communication.contract;
+package de.dsi8.dsi8acl.exception;
 
-import de.dsi8.dsi8acl.exception.ConnectionProblemException;
-import android.app.Activity;
-import to.sven.androidrccar.common.logic.impl.AbstractLogic;
+import to.sven.androidrccar.common.logic.contract.ILogicListener;
 
 /**
- * The {@link AbstractLogic} uses this listener to inform the implementor of this interface 
- * that something happens. (Usually an {@link Activity})
+ * This Exception is used to tell the {@link ILogicListener} in {@link ILogicListener#connectionLost} that a problem occurred.
  * @author sven
- *
+ * 
  */
-public interface ILogicListener {
+public class ConnectionProblemException extends Exception {
+
+	/**
+	 * Unique ID for serialization.
+	 */
+	private static final long serialVersionUID = 1067410542805692580L;
 	
 	/**
-	 * The connection the Client/Host has been lost.
-	 * @param ex The reason why the connection has been lost.
+	 * @see Exception#Exception(String, Throwable)
 	 */
-	void connectionLost(ConnectionProblemException ex);
+	public ConnectionProblemException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
+	/**
+	 * @see Exception#Exception(String)
+	 */
+	public ConnectionProblemException(String detailMessage) {
+		super(detailMessage);
+	}
+
+	/**
+	 * @see Exception#Exception(Throwable)
+	 */
+	public ConnectionProblemException(Throwable cause) {
+		super(cause);
+	}
 }
