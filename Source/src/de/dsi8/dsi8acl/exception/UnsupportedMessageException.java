@@ -17,33 +17,51 @@
  * along with this source code; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  ******************************************************************************/
-package de.dsi8.dsi8acl.communication.handler;
+package de.dsi8.dsi8acl.exception;
 
-import de.dsi8.dsi8acl.exception.InvalidMessageException;
+import java.io.IOException;
+
 import to.sven.androidrccar.common.communication.model.Message;
-import to.sven.androidrccar.common.logic.impl.AbstractLogic;
 
 /**
- * A {@code IMessageHandler} handles received messages to a concrete {@link Message} type.  
- * 
- * Note: The implementors of this interface must have an constructor
- * that accept an implementor of {@link AbstractLogic} as only parameter.
+ * This {@link Exception} is thrown, when the {@link Message}-Type is not supported in the current state.
  * @author sven
  *
- * @param <T> The concrete {@link Message} type, that is handled by the implementor.
  */
-public interface IMessageHandler<T extends Message> {
+public class UnsupportedMessageException extends IOException {
+
+	/**
+	 * Unique ID for serialization.
+	 */
+	private static final long serialVersionUID = 8597803411423812786L;
+
+	/**
+	 * @see IOException#IOException(String, Throwable)
+	 */
+	public UnsupportedMessageException(String message, Throwable cause) {
+		super(message, cause);
+	}
+
+	/**
+	 * @see IOException#IOException(String)
+	 */
+	public UnsupportedMessageException(String detailMessage) {
+		super(detailMessage);
+	}
+
+	/**
+	 * @see IOException#IOException(Throwable)
+	 */
+	public UnsupportedMessageException(Throwable cause) {
+		super(cause);
+	}
 	
 	/**
-	 * Get the {@link Class} of the concrete {@link Message} type.
-	 * @return {@link Class}
+	 * Creates a new {@link UnsupportedMessageException}.
+	 * @param unsupportedMessage The {@link Message} that is not supported.
 	 */
-	Class<T> getMessageType();
-	
-	/**
-	 * Handle a received message.
-	 * @param message The received message.
-	 * @throws InvalidMessageException If the message have invalid data.
-	 */
-	void handleMessage(T message) throws InvalidMessageException;
+	public UnsupportedMessageException(Message unsupportedMessage) {
+		super("The message type " + unsupportedMessage.getClass().toString() + " is not supported in this state.");
+	}
+
 }

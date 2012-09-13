@@ -24,11 +24,11 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import de.dsi8.dsi8acl.communication.handler.IMessageHandler;
+import de.dsi8.dsi8acl.exception.ConnectionProblemException;
+import de.dsi8.dsi8acl.exception.UnsupportedMessageException;
 
 import to.sven.androidrccar.common.communication.contract.IRemoteCommunication;
 import to.sven.androidrccar.common.communication.model.Message;
-import to.sven.androidrccar.common.exception.ConnectionProblemException;
-import to.sven.androidrccar.common.exception.UnsupportedMessageException;
 import to.sven.androidrccar.common.framework.AbstractDependencyContainer;
 import to.sven.androidrccar.common.framework.IDependencyContainer;
 import to.sven.androidrccar.common.logic.impl.AbstractLogic;
