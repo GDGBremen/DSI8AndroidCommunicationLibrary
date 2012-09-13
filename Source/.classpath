@@ -4,5 +4,20 @@
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
+	<classpathentry kind="lib" path="libs/jackson-annotations-2.0.2.jar" sourcepath="libs/src/jackson-annotations-2.0.2-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/DSI8AndroidCommunicationLibrary/libs/javadoc/jackson-annotations-2.0.2-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="libs/jackson-core-2.0.2.jar" sourcepath="libs/src/jackson-core-2.0.2-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/DSI8AndroidCommunicationLibrary/libs/jackson-core-2.0.2.jar!/"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="libs/jackson-databind-2.0.2.jar" sourcepath="libs/src/jackson-databind-2.0.2-sources.jar">
+		<attributes>
+			<attribute name="javadoc_location" value="jar:platform:/resource/DSI8AndroidCommunicationLibrary/libs/javadoc/jackson-databind-2.0.2-javadoc.jar!/"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
