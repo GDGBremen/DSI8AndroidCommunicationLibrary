@@ -28,7 +28,7 @@ public class ServerCommunication implements IServerCommunication, ICommunication
 	}
 	
 	public void startListen() {
-		if(partners.size() < maxPlayers && (connector == null || connector.finishedListening())) {
+		if(partners.size() < maxPlayers/* && (connector == null || connector.finishedListening())*/) {
 			connector = new SocketConnector(socketConnectorListener,
 											ConnectionParameter.DEFAULT_PORT,
 											ConnectionParameter.DEFAULT_PASSWORD);
@@ -93,4 +93,22 @@ public class ServerCommunication implements IServerCommunication, ICommunication
 		}
 		
 	};
+
+	private ICommunicationPartner getCommunicationPartner(int id) {
+		for (ICommunicationPartner partner : this.partners) {
+			if (partner.getId() == id) {
+				return partner;
+			}
+		}
+		
+		return null;
+	}
+	
+	@Override
+	public void sendMessage(int comId, Message msg) {
+		ICommunicationPartner communicationPartner = getCommunicationPartner(comId);
+		if (communicationPartner != null) {
+			communicationPartner.sendMessage(msg);
+		}
+	}
 }
