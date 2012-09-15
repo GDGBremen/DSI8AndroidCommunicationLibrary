@@ -176,7 +176,7 @@ public class CommunicationPartner implements ICommunicationPartner, IRemoteConne
 	@Override
 	public void sendMessage(Message message) {
 		try {
-			Log.d(LOG_TAG, message.getClass().getSimpleName()); // TODO: rm Debug
+			//Log.d(LOG_TAG, message.getClass().getSimpleName()); // TODO: rm Debug
 			remoteCommunication.sendMessage(message);
 		}
 		catch(IOException ex)
