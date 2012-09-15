@@ -129,7 +129,7 @@ public class SocketConnector extends AsyncTask<Object, Object, AsyncTaskResult<S
 	@Override
 	protected void onPostExecute(AsyncTaskResult<Socket> result) {
 		if(result.getError() != null) {
-			socketConnectorListener.error(R.string.error_unspecified, result.getError());
+			socketConnectorListener.error(result.getError());
 		} else {
 			socketConnectorListener.connectionEstablished(result.getResult());
 		}
