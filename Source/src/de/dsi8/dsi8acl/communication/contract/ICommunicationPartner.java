@@ -19,7 +19,7 @@
  ******************************************************************************/
 package de.dsi8.dsi8acl.communication.contract;
 
-import de.dsi8.dsi8acl.communication.handler.IMessageHandler;
+import de.dsi8.dsi8acl.communication.handler.AbstractMessageHandler;
 import de.dsi8.dsi8acl.connection.model.Message;
 
 /**
@@ -38,15 +38,15 @@ public interface ICommunicationPartner {
 	void initialized();
 	
 	/**
-	 * Register a new {@link IMessageHandler} that should handle messages.
-	 * @param messageHandlerClass {@link Class} of {@link IMessageHandler} that should be added
-	 * @param <T> Concrete Type of {@link IMessageHandler}
+	 * Register a new {@link AbstractMessageHandler} that should handle messages.
+	 * @param messageHandlerClass {@link Class} of {@link AbstractMessageHandler} that should be added
+	 * @param <T> Concrete Type of {@link AbstractMessageHandler}
 	 * 
 	 */
-	void registerMessageHandler(IMessageHandler messageHandler);
+	void registerMessageHandler(AbstractMessageHandler messageHandler);
 	
 	/**
-	 * Removes all registered {@link IMessageHandler}s.
+	 * Removes all registered {@link AbstractMessageHandler}s.
 	 */
 	void clearMessageHandlers();
 	

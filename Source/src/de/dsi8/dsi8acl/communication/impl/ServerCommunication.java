@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.dsi8.dsi8acl.communication.contract.IServerCommunication;
-import de.dsi8.dsi8acl.communication.contract.ICommunicationListener;
+import de.dsi8.dsi8acl.communication.contract.IServerCommunicationListener;
 import de.dsi8.dsi8acl.communication.contract.ICommunicationPartner;
 import de.dsi8.dsi8acl.communication.contract.ICommunicationPartnerListener;
 import de.dsi8.dsi8acl.connection.contract.ISocketConnector;
@@ -20,9 +20,9 @@ public class ServerCommunication implements IServerCommunication, ICommunication
 	private List<ICommunicationPartner> partners = new ArrayList<ICommunicationPartner>();
 	private final int maxPlayers;
 	private ISocketConnector connector;
-	private final ICommunicationListener listener;
+	private final IServerCommunicationListener listener;
 	
-	public ServerCommunication(ICommunicationListener listener, int maxPlayer) {
+	public ServerCommunication(IServerCommunicationListener listener, int maxPlayer) {
 		this.listener = listener;
 		this.maxPlayers = maxPlayer; 
 	}

@@ -22,10 +22,13 @@ package de.dsi8.dsi8acl.connection.impl;
 import java.io.IOException;
 import java.net.Socket;
 
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 
+import com.fasterxml.jackson.core.JsonGenerationException;
 import com.fasterxml.jackson.core.JsonGenerator.Feature;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
@@ -97,7 +100,18 @@ public class TCPConnection implements IRemoteConnection {
 	 */
 	@Override
 	public void sendMessage(Message message) throws IOException {
-		jsonMapper.writeValue(socket.getOutputStream(), message);
+		AsyncTask<Message, Integer, Integer> asyncTask = new AsyncTask<Message, Integer, Integer>() {
+			@Override
+			protected Integer doInBackground(Message... params) {
+				try {
+					jsonMapper.writeValue(socket.getOutputStream(), params[0]);
+				} catch (IOException ex) {
+					connectionProblem(ex);
+				}
+				return 0;
+			}
+		};
+		asyncTask.execute(message);
 	}
 	
 	/**
