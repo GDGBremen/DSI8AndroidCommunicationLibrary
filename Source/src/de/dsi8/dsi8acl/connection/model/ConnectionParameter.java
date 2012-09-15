@@ -41,7 +41,7 @@ public class ConnectionParameter {
 	 * The base URL, that is used to receive intents from other Applications
 	 * (like the user click on the link in a mail).
 	 */
-	private static final String URL_BASE = "http://androidrccar.sven.to/connect/";
+	private static final String URL_BASE = "http://vhackandroidgame.dsi8.de/connect/";
 	
 	/**
 	 * The complete URL with parameters for formating.
