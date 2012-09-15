@@ -38,12 +38,6 @@ public interface ISocketConnector {
 	void cancel();
 	
 	/**
-	 * Returns the connection details for connecting to the socket
-	 * @return {@link ConnectionParameter}
-	 */
-	ConnectionParameter getConnectionDetails();
-	
-	/**
 	 * Returns true, if {@link #listen()} was called and somebody has connected.
 	 * @return True, if somebody has connected.
 	 */
