@@ -23,19 +23,19 @@ import java.io.IOException;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import de.dsi8.dsi8acl.communication.contract.ICommunicationPartner;
+import de.dsi8.dsi8acl.communication.contract.ICommunicationPartnerListener;
+import de.dsi8.dsi8acl.communication.handler.IFacadeForMessageHandler;
 import de.dsi8.dsi8acl.communication.handler.IMessageHandler;
+import de.dsi8.dsi8acl.connection.contract.IRemoteConnection;
+import de.dsi8.dsi8acl.connection.contract.IRemoteConnectionListener;
+import de.dsi8.dsi8acl.connection.model.Message;
 import de.dsi8.dsi8acl.exception.ConnectionProblemException;
 import de.dsi8.dsi8acl.exception.UnsupportedMessageException;
 
-import to.sven.androidrccar.common.communication.contract.IRemoteCommunication;
-import to.sven.androidrccar.common.communication.model.Message;
-import to.sven.androidrccar.common.framework.AbstractDependencyContainer;
-import to.sven.androidrccar.common.framework.IDependencyContainer;
-import to.sven.androidrccar.common.logic.impl.AbstractLogic;
-import to.sven.androidrccar.common.service.contract.ILocationService;
 import android.util.Log;
 
-public abstract class AbstractCommunicationPartner {
+public abstract class CommunicationPartner implements ICommunicationPartner, IFacadeForMessageHandler, IRemoteConnectionListener {
 	/**
 	 * Was closed called?
 	 */
@@ -45,13 +45,13 @@ public abstract class AbstractCommunicationPartner {
 	 * Used as Log Tag.
 	 * @see Log
 	 */
-	private static final String LOG_TAG = "AbstractCommunicationPartner";
+	private static final String LOG_TAG = "CommunicationPartner";
 	
 	/**
 	 * Used for the Communication with the Client/Host.
 	 * @see IRemoteCommunication
 	 */
-	private final IRemoteCommunication remoteCommunication;
+	private final IRemoteConnection remoteCommunication;
 	
 	/**
 	 * Contains the canonical names and the instances of all {@link IMessageHandler} that 
@@ -63,22 +63,15 @@ public abstract class AbstractCommunicationPartner {
 	/**
 	 * The one that that want to know, when something happen here (Most likely an Activity)
 	 */
-	private final TListener listener;
-	
-	/**
-	 * A concrete {@link AbstractDependencyContainer} for dependency injection
-	 */
-	private final TDependencyContainer container;
+	private final ICommunicationPartnerListener listener;
 	
 	/**
 	 * Initializes the {@link AbstractLogic}
 	 * @param container A {@link IDependencyContainer} for dependency injection
 	 */
-	public AbstractLogic(TDependencyContainer container) {
-		this.container = container;
-		this.listener = container.getLogicListener();
-		this.remoteCommunication = container.getFactory()
-										    .createRemoteCommuncation(container, this);
+	public CommunicationPartner(ICommunicationPartnerListener listener, IRemoteConnection remoteConnection) {
+		this.listener = listener;
+		this.remoteCommunication = remoteConnection;
 	}
 	
 	/**
@@ -87,15 +80,6 @@ public abstract class AbstractCommunicationPartner {
 	 */
 	protected void initialized() {
 		remoteCommunication.startMessageListener();
-	}
-	
-	/**
-	 * Returns the concrete {@link IDependencyContainer} interface.
-	 * @return {@link #container}
-	 */
-	@Override
-	public TDependencyContainer getDependency() {
-		return container;
 	}
 	
 	/**
@@ -123,7 +107,7 @@ public abstract class AbstractCommunicationPartner {
 	@SuppressWarnings("unchecked") // Only called with the correct handler 
 	private <T extends Message> void handleMessage(Message message, IMessageHandler<T> messageHandler) {
 		try {
-			messageHandler.handleMessage((T)message);
+			messageHandler.handleMessage(this, (T)message);
 		} catch(Exception e) {
 			handleError(e); // TODO: Test thiz.
 		}
@@ -133,27 +117,15 @@ public abstract class AbstractCommunicationPartner {
 	 * Handles message that are not supported by the current state of the object.
 	 * @param message {@link Message} that is not supported.
 	 */
-	protected void handleUnsupportedMessage(Message message) {
+	private void handleUnsupportedMessage(Message message) {
 		handleError(new UnsupportedMessageException(message));
-	}
-
-	/**
-	 * Register a new {@link IMessageHandler} that should handle messages.
-	 * @param messageHandlerClass {@link Class} of {@link IMessageHandler} that should be added
-	 * @param <T> Concrete Type of {@link IMessageHandler}
-	 * 
-	 */
-	@Override
-	public <T extends IMessageHandler<?>> void registerMessageHandler(Class<T> messageHandlerClass) {
-		registerMessageHandler(getDependency().getFactory()
-										 			 .createMessageHandler(messageHandlerClass, this));
 	}
 	
 	/**
 	 * Register a new {@link IMessageHandler} that should handle messages.
 	 * @param messageHandler The {@link IMessageHandler} to register
 	 */
-	private void registerMessageHandler(IMessageHandler<? extends Message> messageHandler) {
+	public void registerMessageHandler(IMessageHandler messageHandler) {
 		messageHandlers.put(messageHandler.getMessageType().getCanonicalName(), messageHandler);
 	}
 	
@@ -185,10 +157,6 @@ public abstract class AbstractCommunicationPartner {
 			messageHandlers.clear();
 			remoteCommunication.close(); // TODO: Implicit tested this?
 			
-			ILocationService locationService = getDependency().getLocationService();
-			if(locationService != null) {
-				locationService.stopListen();
-			}
 		} catch(IOException ex) {
 			Log.w(LOG_TAG, "close", ex);
 		}
@@ -235,7 +203,7 @@ public abstract class AbstractCommunicationPartner {
 			ConnectionProblemException newEx = (logMessage == null)?
 					new ConnectionProblemException(ex):
 					new ConnectionProblemException(logMessage, ex);
-			listener.connectionLost(newEx);
+			listener.connectionLost(this, newEx);
 		}
 	}
 }

@@ -21,7 +21,8 @@ package de.dsi8.dsi8acl.exception;
 
 import java.io.IOException;
 
-import to.sven.androidrccar.common.communication.model.Message;
+import de.dsi8.dsi8acl.connection.model.Message;
+
 
 // TODO: Test thiz?
 

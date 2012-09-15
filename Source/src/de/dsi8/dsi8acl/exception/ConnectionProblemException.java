@@ -19,10 +19,8 @@
  ******************************************************************************/
 package de.dsi8.dsi8acl.exception;
 
-import to.sven.androidrccar.common.logic.contract.ILogicListener;
-
 /**
- * This Exception is used to tell the {@link ILogicListener} in {@link ILogicListener#connectionLost} that a problem occurred.
+ * This Exception is used to tell that a problem occurred.
  * @author sven
  * 
  */

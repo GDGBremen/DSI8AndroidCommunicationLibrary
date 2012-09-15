@@ -19,7 +19,7 @@
  ******************************************************************************/
 package de.dsi8.dsi8acl.connection.contract;
 
-import to.sven.androidrccar.common.model.ConnectionParameter;
+import de.dsi8.dsi8acl.connection.model.ConnectionParameter;
 
 /**
  * The socket connector listens for a connecting client application.  

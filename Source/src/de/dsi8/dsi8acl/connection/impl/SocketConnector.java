@@ -28,12 +28,12 @@ import java.util.Collections;
 
 import org.apache.http.conn.util.InetAddressUtils;
 
+import de.dsi8.dsi8acl.R;
+import de.dsi8.dsi8acl.common.utils.AsyncTaskResult;
 import de.dsi8.dsi8acl.connection.contract.ISocketConnector;
+import de.dsi8.dsi8acl.connection.contract.ISocketConnectorListener;
 
-import to.sven.androidrccar.common.model.ConnectionParameter;
-import to.sven.androidrccar.common.utils.AsyncTaskResult;
-import to.sven.androidrccar.host.R;
-import to.sven.androidrccar.host.framework.IHostDependencyContainer;
+import de.dsi8.dsi8acl.connection.model.ConnectionParameter;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -47,7 +47,7 @@ public class SocketConnector extends AsyncTask<Object, Object, AsyncTaskResult<S
 	/**
 	 * The {@link IHostDependencyContainer}
 	 */
-	private final IHostDependencyContainer dc;
+	private final ISocketConnectorListener socketConnectorListener;
 	
 	/**
 	 * Used as Log Tag.
@@ -58,14 +58,17 @@ public class SocketConnector extends AsyncTask<Object, Object, AsyncTaskResult<S
 	/**
 	 * The port that is used by the server socket.
 	 */
-	private volatile int port;
+	private final int port;
+
+	private String password;
 	
 	/**
-	 * Default Constructor
-	 * @param dependencyContainer The {@link IHostDependencyContainer}
+	 * Default Constructor 
 	 */
-	public SocketConnector(IHostDependencyContainer dependencyContainer) {
-		dc = dependencyContainer;
+	public SocketConnector(ISocketConnectorListener socketConnectorListener, int port, String password) {
+		this.socketConnectorListener = socketConnectorListener;
+		this.port = port;
+		this.password = password;
 	}
 
 	/**
@@ -74,8 +77,8 @@ public class SocketConnector extends AsyncTask<Object, Object, AsyncTaskResult<S
 	@Override
 	public ConnectionParameter getConnectionDetails() {
 		return new ConnectionParameter(getLocalIpAddress(),
-									   port, 
-									   dc.getConfiguration().getPassword());
+									   port,
+									   password);
 	}
 	
 	/**
@@ -94,7 +97,7 @@ public class SocketConnector extends AsyncTask<Object, Object, AsyncTaskResult<S
 	    } catch (SocketException ex) {
 	        Log.e(LOG_TAG, ex.toString());
 	    }
-	    return dc.getContext().getString(android.R.string.unknownName);
+	    return "unknown";
 	}
 	
 	/**
@@ -103,7 +106,6 @@ public class SocketConnector extends AsyncTask<Object, Object, AsyncTaskResult<S
 	@Override
 	protected void onPreExecute() {
 		super.onPreExecute();
-		port = dc.getConfiguration().getPort();
 	}
 	
 	/**
@@ -127,9 +129,9 @@ public class SocketConnector extends AsyncTask<Object, Object, AsyncTaskResult<S
 	@Override
 	protected void onPostExecute(AsyncTaskResult<Socket> result) {
 		if(result.getError() != null) {
-			dc.getSocketConnectorListener().error(R.string.error_unspecified, result.getError());
+			socketConnectorListener.error(R.string.error_unspecified, result.getError());
 		} else {
-			dc.getSocketConnectorListener().connectionEstablished(result.getResult());
+			socketConnectorListener.connectionEstablished(result.getResult());
 		}
 	}
 
