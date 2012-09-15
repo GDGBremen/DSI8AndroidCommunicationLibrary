@@ -19,12 +19,14 @@
  ******************************************************************************/
 package de.dsi8.dsi8acl.communication.handler;
 
+import java.lang.reflect.ParameterizedType;
+
 import de.dsi8.dsi8acl.communication.impl.CommunicationPartner;
 import de.dsi8.dsi8acl.exception.InvalidMessageException;
 import de.dsi8.dsi8acl.connection.model.Message;
 
 /**
- * A {@code IMessageHandler} handles received messages to a concrete {@link Message} type.  
+ * A {@code AbstractMessageHandler} handles received messages to a concrete {@link Message} type.  
  * 
  * Note: The implementors of this interface must have an constructor
  * that accept an implementor of {@link AbstractLogic} as only parameter.
@@ -32,18 +34,21 @@ import de.dsi8.dsi8acl.connection.model.Message;
  *
  * @param <T> The concrete {@link Message} type, that is handled by the implementor.
  */
-public interface IMessageHandler<T extends Message> {
+public abstract class AbstractMessageHandler<T extends Message> {
 	
 	/**
 	 * Get the {@link Class} of the concrete {@link Message} type.
 	 * @return {@link Class}
 	 */
-	Class<T> getMessageType();
+	@SuppressWarnings("unchecked")
+	public Class<T> getMessageType() {
+		return (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+	}
 	
 	/**
 	 * Handle a received message.
 	 * @param message The received message.
 	 * @throws InvalidMessageException If the message have invalid data.
 	 */
-	void handleMessage(CommunicationPartner partner, T message) throws InvalidMessageException;
+	public abstract void handleMessage(CommunicationPartner partner, T message) throws InvalidMessageException;
 }

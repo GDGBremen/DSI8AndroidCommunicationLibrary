@@ -26,7 +26,7 @@ import java.util.TreeMap;
 
 import de.dsi8.dsi8acl.communication.contract.ICommunicationPartner;
 import de.dsi8.dsi8acl.communication.contract.ICommunicationPartnerListener;
-import de.dsi8.dsi8acl.communication.handler.IMessageHandler;
+import de.dsi8.dsi8acl.communication.handler.AbstractMessageHandler;
 import de.dsi8.dsi8acl.connection.contract.IRemoteConnection;
 import de.dsi8.dsi8acl.connection.contract.IRemoteConnectionListener;
 import de.dsi8.dsi8acl.connection.impl.TCPConnection;
@@ -60,11 +60,11 @@ public class CommunicationPartner implements ICommunicationPartner, IRemoteConne
 	private final IRemoteConnection remoteCommunication;
 	
 	/**
-	 * Contains the canonical names and the instances of all {@link IMessageHandler} that 
+	 * Contains the canonical names and the instances of all {@link AbstractMessageHandler} that 
 	 * should handle {@link Message}s in the current state of this class.
 	 */
-	private final SortedMap<String,IMessageHandler<?>> messageHandlers = 
-			new TreeMap<String,IMessageHandler<?>>();
+	private final SortedMap<String,AbstractMessageHandler<?>> messageHandlers = 
+			new TreeMap<String,AbstractMessageHandler<?>>();
 	
 	/**
 	 * The one that that want to know, when something happen here (Most likely an Activity)
@@ -91,13 +91,13 @@ public class CommunicationPartner implements ICommunicationPartner, IRemoteConne
 	
 	/**
 	 * Called from the {@link #remoteCommunication} when a message is received.
-	 * Searches for an matching {@link IMessageHandler} and calls it with the message.
+	 * Searches for an matching {@link AbstractMessageHandler} and calls it with the message.
 	 * If no matching handler is found, {@link #handleUnsupportedMessage(Message)} is called.
 	 */
 	@Override
 	public void messageReceived(Message message) {
 		String messageType = message.getClass().getCanonicalName();
-		IMessageHandler<?> messageHandler = messageHandlers.get(messageType);
+		AbstractMessageHandler<?> messageHandler = messageHandlers.get(messageType);
 		if(messageHandler != null) {
 			handleMessage(message, messageHandler);
 		} else {
@@ -112,7 +112,7 @@ public class CommunicationPartner implements ICommunicationPartner, IRemoteConne
 	 * @param messageHandler Handler, that should handle the message
 	 */
 	@SuppressWarnings("unchecked") // Only called with the correct handler 
-	private <T extends Message> void handleMessage(Message message, IMessageHandler<T> messageHandler) {
+	private <T extends Message> void handleMessage(Message message, AbstractMessageHandler<T> messageHandler) {
 		try {
 			messageHandler.handleMessage(this, (T)message);
 		} catch(Exception e) {
@@ -129,15 +129,15 @@ public class CommunicationPartner implements ICommunicationPartner, IRemoteConne
 	}
 	
 	/**
-	 * Register a new {@link IMessageHandler} that should handle messages.
-	 * @param messageHandler The {@link IMessageHandler} to register
+	 * Register a new {@link AbstractMessageHandler} that should handle messages.
+	 * @param messageHandler The {@link AbstractMessageHandler} to register
 	 */
-	public void registerMessageHandler(IMessageHandler messageHandler) {
+	public void registerMessageHandler(AbstractMessageHandler messageHandler) {
 		messageHandlers.put(messageHandler.getMessageType().getCanonicalName(), messageHandler);
 	}
 	
 	/**
-	 * Removes all registered {@link IMessageHandler}s.
+	 * Removes all registered {@link AbstractMessageHandler}s.
 	 */
 	@Override
 	public void clearMessageHandlers() {
