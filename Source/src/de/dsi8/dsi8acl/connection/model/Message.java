@@ -31,8 +31,4 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include=JsonTypeInfo.As.PROPERTY, property="@messageType")
 public abstract class Message {
 	
-	/**
-	 * Defines the Version of the protocol between Host and Client, that is supported by the application.
-	 */
-	public static int PROTOCOL_VERSION = 1;
 }
