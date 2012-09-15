@@ -15,4 +15,6 @@ public interface IServerCommunication {
 	void sendMessageToAll(Message msg, int state);
 	
 	void sendMessageToAll(Message msg, int state, CommunicationPartner ignore);
+	
+	void sendMessage(int comId, Message msg);
 }
