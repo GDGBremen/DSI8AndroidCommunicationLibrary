@@ -48,6 +48,8 @@ public class ConnectionParameter {
 	 * @see String#format(String, Object...)
 	 */
 	private static final String URL_FORMAT = URL_BASE+"?host=%1$s&port=%2$d&password=%3$s";
+
+	public static final String DEFAULT_PASSWORD = "";
 	
 	/**
 	 * Creates a new instance of {@link ConnectionParameter}

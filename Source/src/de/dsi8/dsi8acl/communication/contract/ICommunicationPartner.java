@@ -19,6 +19,9 @@
  ******************************************************************************/
 package de.dsi8.dsi8acl.communication.contract;
 
+import de.dsi8.dsi8acl.communication.handler.IMessageHandler;
+import de.dsi8.dsi8acl.connection.model.Message;
+
 /**
  * Common access to the logic.
  * @author sven
@@ -26,8 +29,50 @@ package de.dsi8.dsi8acl.communication.contract;
  */
 public interface ICommunicationPartner {
 	
+	int getId();
+	
+	int getState();
+
+	void setState(int state);
+	
+	void initialized();
+	
 	/**
-	 * Close the connection(s) and stops all running services.
+	 * Register a new {@link IMessageHandler} that should handle messages.
+	 * @param messageHandlerClass {@link Class} of {@link IMessageHandler} that should be added
+	 * @param <T> Concrete Type of {@link IMessageHandler}
+	 * 
 	 */
-	void close(); // TODO: Implement closable?
+	void registerMessageHandler(IMessageHandler messageHandler);
+	
+	/**
+	 * Removes all registered {@link IMessageHandler}s.
+	 */
+	void clearMessageHandlers();
+	
+	/**
+	 * Close the connection.
+	 */
+	void close();
+	
+	/**
+	 * Sends a message to the remote Host/Client.
+	 * @param message The message
+	 */
+	void sendMessage(Message message);
+	
+	/**
+	 * Will be called on an error.
+	 * Closes the connection and logs the Exception {@code ex}.
+	 * @param ex The error
+	 */
+	void handleError(Exception ex);
+	
+	/**
+	 * Will be called on an error.
+	 * Closes the connection and logs the Exception {@code ex}.
+	 * @param ex The error
+	 * @param logMessage Additional message for logging
+	 */
+	void handleError(Exception ex, String logMessage);
 }

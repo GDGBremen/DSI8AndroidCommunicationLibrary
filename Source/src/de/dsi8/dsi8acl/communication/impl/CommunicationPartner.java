@@ -20,22 +20,28 @@
 package de.dsi8.dsi8acl.communication.impl;
 
 import java.io.IOException;
+import java.net.Socket;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 import de.dsi8.dsi8acl.communication.contract.ICommunicationPartner;
 import de.dsi8.dsi8acl.communication.contract.ICommunicationPartnerListener;
-import de.dsi8.dsi8acl.communication.handler.IFacadeForMessageHandler;
 import de.dsi8.dsi8acl.communication.handler.IMessageHandler;
 import de.dsi8.dsi8acl.connection.contract.IRemoteConnection;
 import de.dsi8.dsi8acl.connection.contract.IRemoteConnectionListener;
+import de.dsi8.dsi8acl.connection.impl.TCPConnection;
 import de.dsi8.dsi8acl.connection.model.Message;
 import de.dsi8.dsi8acl.exception.ConnectionProblemException;
 import de.dsi8.dsi8acl.exception.UnsupportedMessageException;
 
 import android.util.Log;
 
-public abstract class CommunicationPartner implements ICommunicationPartner, IFacadeForMessageHandler, IRemoteConnectionListener {
+public class CommunicationPartner implements ICommunicationPartner, IRemoteConnectionListener {
+	
+	private static int partnerCount = 0;
+	
+	private final int id;
+	
 	/**
 	 * Was closed called?
 	 */
@@ -48,7 +54,7 @@ public abstract class CommunicationPartner implements ICommunicationPartner, IFa
 	private static final String LOG_TAG = "CommunicationPartner";
 	
 	/**
-	 * Used for the Communication with the Client/Host.
+	 * Used for the ServerCommunication with the Client/Host.
 	 * @see IRemoteCommunication
 	 */
 	private final IRemoteConnection remoteCommunication;
@@ -69,16 +75,17 @@ public abstract class CommunicationPartner implements ICommunicationPartner, IFa
 	 * Initializes the {@link AbstractLogic}
 	 * @param container A {@link IDependencyContainer} for dependency injection
 	 */
-	public CommunicationPartner(ICommunicationPartnerListener listener, IRemoteConnection remoteConnection) {
+	public CommunicationPartner(ICommunicationPartnerListener listener, Socket socket) {
+		this.id = partnerCount++;
 		this.listener = listener;
-		this.remoteCommunication = remoteConnection;
+		this.remoteCommunication = new TCPConnection(socket, this);
 	}
 	
 	/**
 	 * This method should called, when the concrete logic is initialized.
 	 * Starts the receiving of messages.
 	 */
-	protected void initialized() {
+	public void initialized() {
 		remoteCommunication.startMessageListener();
 	}
 	
@@ -205,5 +212,20 @@ public abstract class CommunicationPartner implements ICommunicationPartner, IFa
 					new ConnectionProblemException(logMessage, ex);
 			listener.connectionLost(this, newEx);
 		}
+	}
+
+	@Override
+	public int getId() {
+		return id;
+	}
+	
+	private int state;
+
+	public int getState() {
+		return state;
+	}
+
+	public void setState(int state) {
+		this.state = state;
 	}
 }

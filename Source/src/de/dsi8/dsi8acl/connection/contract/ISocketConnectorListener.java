@@ -43,5 +43,5 @@ public interface ISocketConnectorListener {
 	 * @param resId A string resource Id to a error message.
 	 * @param args Some objects, that will be formatted with the string. 
 	 */
-	void error(int resId, Object... args);
+	void error(Exception ex);
 }
