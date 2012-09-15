@@ -74,18 +74,17 @@ public class SocketConnector extends AsyncTask<Object, Object, AsyncTaskResult<S
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
-	public ConnectionParameter getConnectionDetails() {
+	public static ConnectionParameter getDefaultConnectionDetails() {
 		return new ConnectionParameter(getLocalIpAddress(),
-									   port,
-									   password);
+									   ConnectionParameter.DEFAULT_PORT,
+									   ConnectionParameter.DEFAULT_PASSWORD);
 	}
 	
 	/**
 	 * Returns the first non-local IPv4 address of the device. 
 	 * @return IPv4 address as String or unknown, if no address is found.
 	 */
-	private String getLocalIpAddress() {
+	private static String getLocalIpAddress() {
 	    try {
 	    	for(NetworkInterface iface : Collections.list(NetworkInterface.getNetworkInterfaces())) {
 	    		for (InetAddress address : Collections.list(iface.getInetAddresses())) {
