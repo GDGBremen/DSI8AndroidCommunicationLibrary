@@ -21,7 +21,8 @@ package de.dsi8.dsi8acl.exception;
 
 import java.io.IOException;
 
-import to.sven.androidrccar.common.communication.model.Message;
+import de.dsi8.dsi8acl.connection.model.Message;
+
 
 /**
  * This {@link Exception} is thrown, when the {@link Message}-Type is not supported in the current state.

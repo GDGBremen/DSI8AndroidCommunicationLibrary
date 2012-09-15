@@ -19,9 +19,9 @@
  ******************************************************************************/
 package de.dsi8.dsi8acl.communication.handler;
 
+import de.dsi8.dsi8acl.communication.impl.CommunicationPartner;
 import de.dsi8.dsi8acl.exception.InvalidMessageException;
-import to.sven.androidrccar.common.communication.model.Message;
-import to.sven.androidrccar.common.logic.impl.AbstractLogic;
+import de.dsi8.dsi8acl.connection.model.Message;
 
 /**
  * A {@code IMessageHandler} handles received messages to a concrete {@link Message} type.  
@@ -45,5 +45,5 @@ public interface IMessageHandler<T extends Message> {
 	 * @param message The received message.
 	 * @throws InvalidMessageException If the message have invalid data.
 	 */
-	void handleMessage(T message) throws InvalidMessageException;
+	void handleMessage(CommunicationPartner partner, T message) throws InvalidMessageException;
 }

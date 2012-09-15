@@ -19,9 +19,9 @@
  ******************************************************************************/
 package de.dsi8.dsi8acl.communication.contract;
 
+import de.dsi8.dsi8acl.communication.impl.CommunicationPartner;
 import de.dsi8.dsi8acl.exception.ConnectionProblemException;
 import android.app.Activity;
-import to.sven.androidrccar.common.logic.impl.AbstractLogic;
 
 /**
  * The {@link AbstractLogic} uses this listener to inform the implementor of this interface 
@@ -29,11 +29,11 @@ import to.sven.androidrccar.common.logic.impl.AbstractLogic;
  * @author sven
  *
  */
-public interface ILogicListener {
+public interface ICommunicationPartnerListener {
 	
 	/**
 	 * The connection the Client/Host has been lost.
 	 * @param ex The reason why the connection has been lost.
 	 */
-	void connectionLost(ConnectionProblemException ex);
+	void connectionLost(CommunicationPartner partner, ConnectionProblemException ex);
 }

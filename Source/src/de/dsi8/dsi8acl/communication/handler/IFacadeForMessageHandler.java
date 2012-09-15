@@ -19,12 +19,8 @@
  ******************************************************************************/
 package de.dsi8.dsi8acl.communication.handler;
 
-import to.sven.androidrccar.common.communication.model.Message;
-import to.sven.androidrccar.common.framework.AbstractDependencyContainer;
-import to.sven.androidrccar.common.framework.IDependencyContainer;
-import to.sven.androidrccar.common.framework.IFactory;
-import to.sven.androidrccar.common.logic.impl.AbstractLogic;
-import to.sven.androidrccar.common.service.impl.LocationService;
+import de.dsi8.dsi8acl.connection.model.Message;
+
 
 /**
  * Interface for the {@link IMessageHandler}s to access the Logic ({@link AbstractLogic}).
@@ -32,14 +28,8 @@ import to.sven.androidrccar.common.service.impl.LocationService;
  *
  * @param <TDependencyContainer> The Container that contains the dependences.
  */
-public interface IFacadeForMessageHandler<TDependencyContainer extends IDependencyContainer<? extends IFactory, ?>> {
+public interface IFacadeForMessageHandler {
 	
-	/**
-	 * Returns the concrete {@link AbstractDependencyContainer}
-	 * @return concrete {@link AbstractDependencyContainer}
-	 */
-	TDependencyContainer getDependency();
-
 	/**
 	 * Register a new {@link IMessageHandler} that should handle messages.
 	 * @param messageHandlerClass {@link Class} of {@link IMessageHandler} that should be added
@@ -78,10 +68,4 @@ public interface IFacadeForMessageHandler<TDependencyContainer extends IDependen
 	 * @param logMessage Additional message for logging
 	 */
 	void handleError(Exception ex, String logMessage);
-	
-	/**
-	 * Creates a {@link LocationService} and sets it in the dependency container.
-	 * (If not already set.)
-	 */
-	void enableLocationService();
 }
