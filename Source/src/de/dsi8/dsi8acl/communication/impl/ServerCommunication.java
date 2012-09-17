@@ -54,7 +54,7 @@ public class ServerCommunication implements IServerCommunication, ICommunication
 			connector = new TCPSocketConnector(socketConnectorListener,
 											ConnectionParameter.DEFAULT_PORT,
 											ConnectionParameter.DEFAULT_PASSWORD);
-			connector.listen();
+			connector.listen(); // TODO: No concrete
 		}
 	}
 	
