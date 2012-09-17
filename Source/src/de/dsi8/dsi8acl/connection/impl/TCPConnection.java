@@ -52,7 +52,7 @@ public class TCPConnection implements IRemoteConnection {
 	 * Will be informed, when something happen here.
 	 * @see IRemoteConnectionListener
 	 */
-	private final IRemoteConnectionListener listener;
+	private IRemoteConnectionListener listener;
 	/**
 	 * @see MessageListenerThread
 	 */
@@ -67,9 +67,8 @@ public class TCPConnection implements IRemoteConnection {
 	 * @param dependencyContainer The {@link Socket}
 	 * @param listener Will be informed, when something happen here.
 	 */
-	public TCPConnection(Socket socket, IRemoteConnectionListener listener) { 
+	public TCPConnection(Socket socket) {
 		this.socket = socket;
-		this.listener = listener;
 		jsonMapper.configure(Feature.AUTO_CLOSE_TARGET, false);
 		jsonMapper.configure(SerializationFeature.CLOSE_CLOSEABLE, false);
 		jsonMapper.configure(SerializationFeature.FLUSH_AFTER_WRITE_VALUE, true);
@@ -128,7 +127,9 @@ public class TCPConnection implements IRemoteConnection {
 	 * @param e What went wrong.
 	 */
 	void connectionProblem(Exception e) {
-		listener.connectionProblem(e);
+		if(listener != null) {
+			listener.connectionProblem(e);
+		}
 	}
 	
 	/**
@@ -145,5 +146,10 @@ public class TCPConnection implements IRemoteConnection {
 	 */
 	Socket getSocket() {
 		return socket;
+	}
+
+	@Override
+	public void setListener(IRemoteConnectionListener listener) {
+		this.listener = listener;
 	}
 }

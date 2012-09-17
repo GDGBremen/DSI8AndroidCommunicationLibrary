@@ -31,8 +31,8 @@ import org.apache.http.conn.util.InetAddressUtils;
 
 import de.dsi8.dsi8acl.R;
 import de.dsi8.dsi8acl.common.utils.AsyncTaskResult;
-import de.dsi8.dsi8acl.connection.contract.ISocketConnector;
-import de.dsi8.dsi8acl.connection.contract.ISocketConnectorListener;
+import de.dsi8.dsi8acl.connection.contract.IConnector;
+import de.dsi8.dsi8acl.connection.contract.IConnectorListener;
 
 import de.dsi8.dsi8acl.connection.model.ConnectionParameter;
 import android.os.AsyncTask;
@@ -42,19 +42,19 @@ import android.util.Log;
  * The socket connector listens for a connecting client application.  
  * @author sven
  */
-public class SocketConnector extends AsyncTask<Object, Object, AsyncTaskResult<Socket>> 
-							 implements ISocketConnector {
+public class TCPSocketConnector extends AsyncTask<Object, Object, AsyncTaskResult<Socket>> 
+							 implements IConnector {
 	
 	/**
 	 * The {@link IHostDependencyContainer}
 	 */
-	private final ISocketConnectorListener socketConnectorListener;
+	private final IConnectorListener socketConnectorListener;
 	
 	/**
 	 * Used as Log Tag.
 	 * @see Log
 	 */
-	private static final String LOG_TAG = "SocketConnector";
+	private static final String LOG_TAG = "TCPSocketConnector";
 	
 	/**
 	 * The port that is used by the server socket.
@@ -66,7 +66,7 @@ public class SocketConnector extends AsyncTask<Object, Object, AsyncTaskResult<S
 	/**
 	 * Default Constructor 
 	 */
-	public SocketConnector(ISocketConnectorListener socketConnectorListener, int port, String password) {
+	public TCPSocketConnector(IConnectorListener socketConnectorListener, int port, String password) {
 		this.socketConnectorListener = socketConnectorListener;
 		this.port = port;
 		this.password = password;
@@ -131,7 +131,7 @@ public class SocketConnector extends AsyncTask<Object, Object, AsyncTaskResult<S
 		if(result.getError() != null) {
 			socketConnectorListener.error(result.getError());
 		} else {
-			socketConnectorListener.connectionEstablished(result.getResult());
+			socketConnectorListener.connectionEstablished(new TCPConnection(result.getResult()));
 		}
 	}
 

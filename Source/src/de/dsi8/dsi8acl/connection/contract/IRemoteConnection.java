@@ -37,7 +37,7 @@ public interface IRemoteConnection extends Closeable {
 	/**
 	 * Start the {@link Thread} that wait for messages from the Host/Client.
 	 */
-	public abstract void startMessageListener();
+	void startMessageListener();
 
 	/**
 	 * Closes the connection to the partner and
@@ -45,13 +45,15 @@ public interface IRemoteConnection extends Closeable {
 	 * The {@link IRemoteConnectionListener#connectionProblem} callback will not executed.
 	 */
 	@Override
-	public abstract void close() throws IOException;
+	void close() throws IOException;
 
 	/**
 	 * Encodes the {@link Message} as JSON and sends it to the partner.
 	 * @param message {@link Message} to Encode
 	 * @throws IOException Thrown if sending failed
 	 */
-	public abstract void sendMessage(Message message) throws IOException;
+	void sendMessage(Message message) throws IOException;
 
+	
+	void setListener(IRemoteConnectionListener listener);
 }

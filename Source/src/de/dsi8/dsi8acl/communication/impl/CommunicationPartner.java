@@ -21,21 +21,18 @@
 package de.dsi8.dsi8acl.communication.impl;
 
 import java.io.IOException;
-import java.net.Socket;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import android.util.Log;
 import de.dsi8.dsi8acl.communication.contract.ICommunicationPartner;
 import de.dsi8.dsi8acl.communication.contract.ICommunicationPartnerListener;
 import de.dsi8.dsi8acl.communication.handler.AbstractMessageHandler;
 import de.dsi8.dsi8acl.connection.contract.IRemoteConnection;
 import de.dsi8.dsi8acl.connection.contract.IRemoteConnectionListener;
-import de.dsi8.dsi8acl.connection.impl.TCPConnection;
 import de.dsi8.dsi8acl.connection.model.Message;
 import de.dsi8.dsi8acl.exception.ConnectionProblemException;
 import de.dsi8.dsi8acl.exception.UnsupportedMessageException;
-
-import android.util.Log;
 
 public class CommunicationPartner implements ICommunicationPartner, IRemoteConnectionListener {
 	
@@ -58,7 +55,7 @@ public class CommunicationPartner implements ICommunicationPartner, IRemoteConne
 	 * Used for the ServerCommunication with the Client/Host.
 	 * @see IRemoteCommunication
 	 */
-	private final IRemoteConnection remoteCommunication;
+	private final IRemoteConnection remoteConnection;
 	
 	/**
 	 * Contains the canonical names and the instances of all {@link AbstractMessageHandler} that 
@@ -76,10 +73,11 @@ public class CommunicationPartner implements ICommunicationPartner, IRemoteConne
 	 * Initializes the {@link AbstractLogic}
 	 * @param container A {@link IDependencyContainer} for dependency injection
 	 */
-	public CommunicationPartner(ICommunicationPartnerListener listener, Socket socket) {
+	public CommunicationPartner(ICommunicationPartnerListener listener, IRemoteConnection connection) {
 		this.id = partnerCount++;
 		this.listener = listener;
-		this.remoteCommunication = new TCPConnection(socket, this);
+		this.remoteConnection = connection;
+		this.remoteConnection.setListener(this);
 	}
 	
 	/**
@@ -87,11 +85,11 @@ public class CommunicationPartner implements ICommunicationPartner, IRemoteConne
 	 * Starts the receiving of messages.
 	 */
 	public void initialized() {
-		remoteCommunication.startMessageListener();
+		remoteConnection.startMessageListener();
 	}
 	
 	/**
-	 * Called from the {@link #remoteCommunication} when a message is received.
+	 * Called from the {@link #remoteConnection} when a message is received.
 	 * Searches for an matching {@link AbstractMessageHandler} and calls it with the message.
 	 * If no matching handler is found, {@link #handleUnsupportedMessage(Message)} is called.
 	 */
@@ -146,7 +144,7 @@ public class CommunicationPartner implements ICommunicationPartner, IRemoteConne
 	}
 
 	/**
-	 * Called from the {@link #remoteCommunication} when a problem with the exception occurs.
+	 * Called from the {@link #remoteConnection} when a problem with the exception occurs.
 	 * @param ex The Problem
 	 */
 	@Override
@@ -163,7 +161,7 @@ public class CommunicationPartner implements ICommunicationPartner, IRemoteConne
 			closed = true;
 			// The connections should closed, so no we expect no messages anymore:
 			messageHandlers.clear();
-			remoteCommunication.close(); // TODO: Implicit tested this?
+			remoteConnection.close(); // TODO: Implicit tested this?
 			
 		} catch(IOException ex) {
 			Log.w(LOG_TAG, "close", ex);
@@ -171,14 +169,14 @@ public class CommunicationPartner implements ICommunicationPartner, IRemoteConne
 	}
 	
 	/**
-	 * Sends a message to the {@link #remoteCommunication}.
+	 * Sends a message to the {@link #remoteConnection}.
 	 * @param message The message
 	 */
 	@Override
 	public void sendMessage(Message message) {
 		try {
 			//Log.d(LOG_TAG, message.getClass().getSimpleName()); // TODO: rm Debug
-			remoteCommunication.sendMessage(message);
+			remoteConnection.sendMessage(message);
 		}
 		catch(IOException ex)
 		{

@@ -28,9 +28,11 @@ import de.dsi8.dsi8acl.communication.contract.IServerCommunication;
 import de.dsi8.dsi8acl.communication.contract.IServerCommunicationListener;
 import de.dsi8.dsi8acl.communication.contract.ICommunicationPartner;
 import de.dsi8.dsi8acl.communication.contract.ICommunicationPartnerListener;
-import de.dsi8.dsi8acl.connection.contract.ISocketConnector;
-import de.dsi8.dsi8acl.connection.contract.ISocketConnectorListener;
-import de.dsi8.dsi8acl.connection.impl.SocketConnector;
+import de.dsi8.dsi8acl.connection.contract.IConnector;
+import de.dsi8.dsi8acl.connection.contract.IConnectorListener;
+import de.dsi8.dsi8acl.connection.contract.IRemoteConnection;
+import de.dsi8.dsi8acl.connection.impl.TCPSocketConnector;
+import de.dsi8.dsi8acl.connection.impl.TCPConnection;
 import de.dsi8.dsi8acl.connection.model.ConnectionParameter;
 import de.dsi8.dsi8acl.connection.model.Message;
 import de.dsi8.dsi8acl.exception.ConnectionProblemException;
@@ -39,7 +41,7 @@ public class ServerCommunication implements IServerCommunication, ICommunication
 	
 	private List<ICommunicationPartner> partners = new ArrayList<ICommunicationPartner>();
 	private final int maxPlayers;
-	private ISocketConnector connector;
+	private IConnector connector;
 	private final IServerCommunicationListener listener;
 	
 	public ServerCommunication(IServerCommunicationListener listener, int maxPlayer) {
@@ -49,7 +51,7 @@ public class ServerCommunication implements IServerCommunication, ICommunication
 	
 	public void startListen() {
 		if(partners.size() < maxPlayers/* && (connector == null || connector.finishedListening())*/) {
-			connector = new SocketConnector(socketConnectorListener,
+			connector = new TCPSocketConnector(socketConnectorListener,
 											ConnectionParameter.DEFAULT_PORT,
 											ConnectionParameter.DEFAULT_PASSWORD);
 			connector.listen();
@@ -93,11 +95,12 @@ public class ServerCommunication implements IServerCommunication, ICommunication
 		listener.connectionLost(partner, ex);
 	}
 	
-	private final ISocketConnectorListener socketConnectorListener = new ISocketConnectorListener() {
+	private final IConnectorListener socketConnectorListener = new IConnectorListener() {
 
 		@Override
-		public void connectionEstablished(Socket socket) {
-			ICommunicationPartner partner = new CommunicationPartner(ServerCommunication.this, socket);
+		public void connectionEstablished(IRemoteConnection connection) {
+			ICommunicationPartner partner = new CommunicationPartner(ServerCommunication.this,
+																	 connection);
 			partners.add(partner);
 			
 			listener.newPartner(partner);

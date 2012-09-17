@@ -20,24 +20,22 @@
  ******************************************************************************/
 package de.dsi8.dsi8acl.connection.contract;
 
-import java.net.Socket;
-
-import de.dsi8.dsi8acl.connection.impl.SocketConnector;
+import de.dsi8.dsi8acl.connection.impl.TCPSocketConnector;
 
 
 /**
- * A listener interface for the {@link SocketConnector} 
+ * A listener interface for the {@link TCPSocketConnector} 
  * to report, that a somebody has connected
  * or an error occurred.
  * @author sven
  *
  */
-public interface ISocketConnectorListener {
+public interface IConnectorListener {
 	/**
 	 * Somebody has connected
 	 * @param socket The socket to the "somebody".
 	 */
-	void connectionEstablished(Socket socket);
+	void connectionEstablished(IRemoteConnection connection);
 	
 	/**
 	 * An error occurred.

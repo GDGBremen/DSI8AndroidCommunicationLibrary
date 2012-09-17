@@ -20,13 +20,11 @@
  ******************************************************************************/
 package de.dsi8.dsi8acl.connection.contract;
 
-import de.dsi8.dsi8acl.connection.model.ConnectionParameter;
-
 /**
  * The socket connector listens for a connecting client application.  
  * @author sven
  */
-public interface ISocketConnector {
+public interface IConnector {
 	/**
 	 * Start listen for a connecting client application.
 	 * May be called only once time.
