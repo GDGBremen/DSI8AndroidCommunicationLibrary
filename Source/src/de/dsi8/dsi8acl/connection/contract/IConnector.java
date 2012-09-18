@@ -25,20 +25,20 @@ package de.dsi8.dsi8acl.connection.contract;
  * @author sven
  */
 public interface IConnector {
+	
 	/**
 	 * Start listen for a connecting client application.
-	 * May be called only once time.
+	 * @return If listening was started, if not, the connector already listening.
+	 * @throws IllegalStateException If no {@link IConnectorListener} was set.
 	 */
-	void listen();
+	boolean listen() throws IllegalStateException;
 	
 	/**
 	 * Cancel listening, if listening is running.
 	 */
 	void cancel();
 	
-	/**
-	 * Returns true, if {@link #listen()} was called and somebody has connected.
-	 * @return True, if somebody has connected.
-	 */
-	boolean finishedListening();
+	boolean isListening();
+	
+	void setListener(IConnectorListener listener) throws IllegalArgumentException;
 }

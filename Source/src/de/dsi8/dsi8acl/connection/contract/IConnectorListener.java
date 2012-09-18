@@ -31,16 +31,18 @@ import de.dsi8.dsi8acl.connection.impl.TCPSocketConnector;
  *
  */
 public interface IConnectorListener {
+	
 	/**
 	 * Somebody has connected
 	 * @param socket The socket to the "somebody".
+	 * @return Let another client connecting? 
 	 */
-	void connectionEstablished(IRemoteConnection connection);
+	boolean connectionEstablished(IRemoteConnection connection);
 	
 	/**
 	 * An error occurred.
-	 * @param resId A string resource Id to a error message.
-	 * @param args Some objects, that will be formatted with the string. 
+	 * @param ex The error.
+	 * @return Continue listening?
 	 */
-	void error(Exception ex);
+	boolean error(Exception ex);
 }

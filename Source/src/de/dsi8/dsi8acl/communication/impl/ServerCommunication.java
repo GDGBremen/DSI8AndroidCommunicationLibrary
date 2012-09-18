@@ -20,20 +20,16 @@
  ******************************************************************************/
 package de.dsi8.dsi8acl.communication.impl;
 
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.dsi8.dsi8acl.communication.contract.IServerCommunication;
-import de.dsi8.dsi8acl.communication.contract.IServerCommunicationListener;
 import de.dsi8.dsi8acl.communication.contract.ICommunicationPartner;
 import de.dsi8.dsi8acl.communication.contract.ICommunicationPartnerListener;
+import de.dsi8.dsi8acl.communication.contract.IServerCommunication;
+import de.dsi8.dsi8acl.communication.contract.IServerCommunicationListener;
 import de.dsi8.dsi8acl.connection.contract.IConnector;
 import de.dsi8.dsi8acl.connection.contract.IConnectorListener;
 import de.dsi8.dsi8acl.connection.contract.IRemoteConnection;
-import de.dsi8.dsi8acl.connection.impl.TCPSocketConnector;
-import de.dsi8.dsi8acl.connection.impl.TCPConnection;
-import de.dsi8.dsi8acl.connection.model.ConnectionParameter;
 import de.dsi8.dsi8acl.connection.model.Message;
 import de.dsi8.dsi8acl.exception.ConnectionProblemException;
 
@@ -44,17 +40,15 @@ public class ServerCommunication implements IServerCommunication, ICommunication
 	private IConnector connector;
 	private final IServerCommunicationListener listener;
 	
-	public ServerCommunication(IServerCommunicationListener listener, int maxPlayer) {
+	public ServerCommunication(IServerCommunicationListener listener, IConnector connector, int maxPlayer) {
+		// TODO: Throw Argument Exception if connector is null?
 		this.listener = listener;
 		this.maxPlayers = maxPlayer; 
 	}
 	
 	public void startListen() {
-		if(partners.size() < maxPlayers/* && (connector == null || connector.finishedListening())*/) {
-			connector = new TCPSocketConnector(socketConnectorListener,
-											ConnectionParameter.DEFAULT_PORT,
-											ConnectionParameter.DEFAULT_PASSWORD);
-			connector.listen(); // TODO: No concrete
+		if(!hasMaxPlayersConnected()) {
+			connector.listen(); // TODO: add return?
 		}
 	}
 	
@@ -62,9 +56,7 @@ public class ServerCommunication implements IServerCommunication, ICommunication
 		for(ICommunicationPartner partner : partners) {
 			partner.close();
 		}
-		if(connector != null) {
-			connector.cancel();
-		}
+		connector.cancel();
 	}
 	
 	public void sendMessageToAll(Message msg) {
@@ -93,26 +85,28 @@ public class ServerCommunication implements IServerCommunication, ICommunication
 			ConnectionProblemException ex) {
 		partners.remove(partner);
 		listener.connectionLost(partner, ex);
+		
+		startListen(); // TODO: correct?
 	}
 	
 	private final IConnectorListener socketConnectorListener = new IConnectorListener() {
 
 		@Override
-		public void connectionEstablished(IRemoteConnection connection) {
+		public boolean connectionEstablished(IRemoteConnection connection) {
 			ICommunicationPartner partner = new CommunicationPartner(ServerCommunication.this,
 																	 connection);
 			partners.add(partner);
-			
 			listener.newPartner(partner);
-			
 			partner.initialized();
 			
-			startListen();
+			return !hasMaxPlayersConnected();
 		}
 
 		@Override
-		public void error(Exception ex) {
+		public boolean error(Exception ex) {
 			listener.socketListenerProblem(ex);
+			
+			return false; // TODO: Let the listener deceide 
 		}
 		
 	};
@@ -123,7 +117,7 @@ public class ServerCommunication implements IServerCommunication, ICommunication
 				return partner;
 			}
 		}
-		
+		// TODO: Throw Exception
 		return null;
 	}
 	
@@ -133,5 +127,9 @@ public class ServerCommunication implements IServerCommunication, ICommunication
 		if (communicationPartner != null) {
 			communicationPartner.sendMessage(msg);
 		}
+	}
+	
+	private boolean hasMaxPlayersConnected() {
+		return (partners.size() >= maxPlayers);
 	}
 }

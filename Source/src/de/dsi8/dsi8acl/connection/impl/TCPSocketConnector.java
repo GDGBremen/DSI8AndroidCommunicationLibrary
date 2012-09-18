@@ -29,26 +29,25 @@ import java.util.Collections;
 
 import org.apache.http.conn.util.InetAddressUtils;
 
-import de.dsi8.dsi8acl.R;
+import android.os.AsyncTask;
+import android.util.Log;
 import de.dsi8.dsi8acl.common.utils.AsyncTaskResult;
 import de.dsi8.dsi8acl.connection.contract.IConnector;
 import de.dsi8.dsi8acl.connection.contract.IConnectorListener;
-
 import de.dsi8.dsi8acl.connection.model.ConnectionParameter;
-import android.os.AsyncTask;
-import android.util.Log;
 
 /**
  * The socket connector listens for a connecting client application.  
  * @author sven
  */
-public class TCPSocketConnector extends AsyncTask<Object, Object, AsyncTaskResult<Socket>> 
-							 implements IConnector {
+public class TCPSocketConnector implements IConnector {
+	
+	private ListenTask listenTask;
 	
 	/**
 	 * The {@link IHostDependencyContainer}
 	 */
-	private final IConnectorListener socketConnectorListener;
+	private IConnectorListener socketConnectorListener;
 	
 	/**
 	 * Used as Log Tag.
@@ -60,18 +59,15 @@ public class TCPSocketConnector extends AsyncTask<Object, Object, AsyncTaskResul
 	 * The port that is used by the server socket.
 	 */
 	private final int port;
-
-	private String password;
 	
 	/**
 	 * Default Constructor 
 	 */
-	public TCPSocketConnector(IConnectorListener socketConnectorListener, int port, String password) {
-		this.socketConnectorListener = socketConnectorListener;
+	public TCPSocketConnector(int port) {
 		this.port = port;
-		this.password = password;
 	}
 
+	// TODO: This not here?
 	/**
 	 * {@inheritDoc}
 	 */
@@ -81,6 +77,7 @@ public class TCPSocketConnector extends AsyncTask<Object, Object, AsyncTaskResul
 									   ConnectionParameter.DEFAULT_PASSWORD);
 	}
 	
+	// TODO: This not here?
 	/**
 	 * Returns the first non-local IPv4 address of the device. 
 	 * @return IPv4 address as String or unknown, if no address is found.
@@ -99,48 +96,20 @@ public class TCPSocketConnector extends AsyncTask<Object, Object, AsyncTaskResul
 	    }
 	    return "unknown";
 	}
-	
-	/**
-	 * Retrieves the {@link #port} from the configuration.
-	 */
-	@Override
-	protected void onPreExecute() {
-		super.onPreExecute();
-	}
-	
-	/**
-	 * Start to listen on the {@link ServerSocket}.
-	 */
-	@Override
-	protected AsyncTaskResult<Socket> doInBackground(Object... params) {
-		try {
-			ServerSocket serverSocket = new ServerSocket(port);
-			Socket socket = serverSocket.accept();
-			serverSocket.close();
-			return new AsyncTaskResult<Socket>(socket);
-		} catch(Exception ex) {
-			return new AsyncTaskResult<Socket>(ex);
-		}
-	}
-	
-	/**
-	 * A connection is established or an error occurred.
-	 */
-	@Override
-	protected void onPostExecute(AsyncTaskResult<Socket> result) {
-		if(result.getError() != null) {
-			socketConnectorListener.error(result.getError());
-		} else {
-			socketConnectorListener.connectionEstablished(new TCPConnection(result.getResult()));
-		}
-	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void listen() {
-		execute((Object)null);
+	public boolean listen() throws IllegalStateException {
+		if(socketConnectorListener == null) {
+			throw new IllegalStateException("Set a IConnectorListener before!");
+		}
+		if(!isListening()) {
+			startNewListenTask();
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -148,14 +117,69 @@ public class TCPSocketConnector extends AsyncTask<Object, Object, AsyncTaskResul
 	 */
 	@Override
 	public void cancel() {
-		cancel(true);
+		if(isListening()) {
+			listenTask.cancel(true);
+		}
+	}
+	
+	/**
+	 * Starts a new listenTask.
+	 * This method don't check if there is a running task!
+	 */
+	private void startNewListenTask() {
+		listenTask = new ListenTask();
+		listenTask.execute((Object)null);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public boolean finishedListening() {
-		return getStatus() == AsyncTask.Status.FINISHED;
+	public boolean isListening() {
+		return !(listenTask == null || listenTask.getStatus() == AsyncTask.Status.FINISHED);
+	}
+	
+	private class ListenTask extends AsyncTask<Object, Object, AsyncTaskResult<Socket>> {
+		/**
+		 * Start to listen on the {@link ServerSocket}.
+		 * @return A socket on success or a exception on fail. 
+		 */
+		@Override
+		protected AsyncTaskResult<Socket> doInBackground(Object... params) {
+			try {
+				ServerSocket serverSocket = new ServerSocket(port);
+				Socket socket = serverSocket.accept();
+				serverSocket.close();
+				return new AsyncTaskResult<Socket>(socket);
+			} catch(Exception ex) {
+				return new AsyncTaskResult<Socket>(ex);
+			}
+		}
+		
+		/**
+		 * A connection is established or an error occurred.
+		 */
+		@Override
+		protected void onPostExecute(AsyncTaskResult<Socket> result) {
+			boolean newListenTask;
+			
+			if(result.getError() != null) {
+				newListenTask = socketConnectorListener.error(result.getError());
+			} else {
+				newListenTask = socketConnectorListener.connectionEstablished(new TCPConnection(result.getResult()));
+			}
+			
+			if(newListenTask) {
+				startNewListenTask();
+			}
+		}
+	}
+
+	@Override
+	public void setListener(IConnectorListener listener) throws IllegalArgumentException {
+		if(listener == null) {
+			throw new IllegalArgumentException("listener is null");
+		}
+		this.socketConnectorListener = listener;
 	}
 }

@@ -43,7 +43,7 @@ public class UnsupportedMessageException extends IOException {
 	public UnsupportedMessageException(String message, Throwable cause) {
 		super(message, cause);
 	}
-
+	
 	/**
 	 * @see IOException#IOException(String)
 	 */
