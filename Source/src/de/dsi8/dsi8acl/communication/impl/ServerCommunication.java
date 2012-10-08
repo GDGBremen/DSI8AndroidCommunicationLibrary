@@ -44,6 +44,8 @@ public class ServerCommunication implements IServerCommunication, ICommunication
 		// TODO: Throw Argument Exception if connector is null?
 		this.listener = listener;
 		this.maxPlayers = maxPlayer; 
+		this.connector = connector;
+		this.connector.setListener(socketConnectorListener);
 	}
 	
 	public void startListen() {
