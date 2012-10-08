@@ -20,21 +20,14 @@
  ******************************************************************************/
 package de.dsi8.dsi8acl.connection.impl;
 
-import java.net.InetAddress;
-import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
-import java.util.Collections;
-
-import org.apache.http.conn.util.InetAddressUtils;
 
 import android.os.AsyncTask;
 import android.util.Log;
 import de.dsi8.dsi8acl.common.utils.AsyncTaskResult;
 import de.dsi8.dsi8acl.connection.contract.IConnector;
 import de.dsi8.dsi8acl.connection.contract.IConnectorListener;
-import de.dsi8.dsi8acl.connection.model.ConnectionParameter;
 
 /**
  * The socket connector listens for a connecting client application.  
@@ -65,36 +58,6 @@ public class TCPSocketConnector implements IConnector {
 	 */
 	public TCPSocketConnector(int port) {
 		this.port = port;
-	}
-
-	// TODO: This not here?
-	/**
-	 * {@inheritDoc}
-	 */
-	public static ConnectionParameter getDefaultConnectionDetails() {
-		return new ConnectionParameter(getLocalIpAddress(),
-									   ConnectionParameter.DEFAULT_PORT,
-									   ConnectionParameter.DEFAULT_PASSWORD);
-	}
-	
-	// TODO: This not here?
-	/**
-	 * Returns the first non-local IPv4 address of the device. 
-	 * @return IPv4 address as String or unknown, if no address is found.
-	 */
-	private static String getLocalIpAddress() {
-	    try {
-	    	for(NetworkInterface iface : Collections.list(NetworkInterface.getNetworkInterfaces())) {
-	    		for (InetAddress address : Collections.list(iface.getInetAddresses())) {
-	    			if (!address.isLoopbackAddress() && InetAddressUtils.isIPv4Address(address.getHostAddress())) {
-	    				return address.getHostAddress().toString();
-	    			}
-	    		}
-	    	}
-	    } catch (SocketException ex) {
-	        Log.e(LOG_TAG, ex.toString());
-	    }
-	    return "unknown";
 	}
 
 	/**

@@ -20,9 +20,16 @@
  ******************************************************************************/
 package de.dsi8.dsi8acl.connection.model;
 
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.URLEncoder;
+import java.util.Collections;
+
+import org.apache.http.conn.util.InetAddressUtils;
 
 import android.net.UrlQuerySanitizer;
+import android.util.Log;
 
 /**
  * Data object that contains the information for connecting to the Host.
@@ -34,23 +41,25 @@ import android.net.UrlQuerySanitizer;
 public class ConnectionParameter {
 	
 	/**
-	 * Default port used by the host
+	 * Used as Log Tag.
+	 * @see Log
 	 */
-	public static final int DEFAULT_PORT = 4254; 
+	private static final String LOG_TAG = "ConnectionParameter";
 	
 	/**
 	 * The base URL, that is used to receive intents from other Applications
 	 * (like the user click on the link in a mail).
 	 */
-	private static final String URL_BASE = "http://vhackandroidgame.dsi8.de/connect/";
+	// TODO: comment
 	
 	/**
 	 * The complete URL with parameters for formating.
 	 * @see String#format(String, Object...)
 	 */
-	private static final String URL_FORMAT = URL_BASE+"?host=%1$s&port=%2$d&password=%3$s";
+	private static final String URL_FORMAT_PARAMETERS = "?host=%1$s&port=%2$d&password=%3$s";
+	// TODO: comment
 
-	public static final String DEFAULT_PASSWORD = "";
+	private static AbstractCommunicationConfiguration staticConfig;
 	
 	/**
 	 * Creates a new instance of {@link ConnectionParameter}
@@ -58,7 +67,7 @@ public class ConnectionParameter {
 	 * @param port {@link #port}
 	 * @param password {@link #password}
 	 */
-	public ConnectionParameter(String host, int port,  String password) {
+	public ConnectionParameter(String host, int port, String password) {
 		this.host = host;
 		this.port = port;
 		this.password = password;
@@ -87,12 +96,42 @@ public class ConnectionParameter {
 		int portDelmitter = hostWithPort.indexOf(':');
 		if(portDelmitter == -1) {
 			host = hostWithPort;
-			port = DEFAULT_PORT;
+			port = staticConfig.getDefaultPort();
 		} else {
 			host = hostWithPort.substring(0, portDelmitter);
 			port = Integer.parseInt(hostWithPort.substring(portDelmitter+1));
 		}
 		this.password = password;
+	}
+
+	// TODO: This not here?
+	/**
+	 * {@inheritDoc}
+	 */
+	public static ConnectionParameter getDefaultConnectionDetails() {
+		return new ConnectionParameter(getLocalIpAddress(),
+									   staticConfig.getDefaultPort(),
+									   staticConfig.getDefaultPassword());
+	}
+	
+	// TODO: This not here?
+	/**
+	 * Returns the first non-local IPv4 address of the device. 
+	 * @return IPv4 address as String or unknown, if no address is found.
+	 */
+	private static String getLocalIpAddress() {
+	    try {
+	    	for(NetworkInterface iface : Collections.list(NetworkInterface.getNetworkInterfaces())) {
+	    		for (InetAddress address : Collections.list(iface.getInetAddresses())) {
+	    			if (!address.isLoopbackAddress() && InetAddressUtils.isIPv4Address(address.getHostAddress())) {
+	    				return address.getHostAddress().toString();
+	    			}
+	    		}
+	    	}
+	    } catch (SocketException ex) {
+	        Log.e(LOG_TAG, ex.toString());
+	    }
+	    return "unknown";
 	}
 	
 	/**
@@ -115,7 +154,7 @@ public class ConnectionParameter {
 	 */
 	@Override
 	public String toString() {
-		return host+((port != DEFAULT_PORT)?":"+port:"");
+		return host+((port != staticConfig.getDefaultPort())?":"+port:"");
 	}
 	
 	/**
@@ -125,6 +164,18 @@ public class ConnectionParameter {
 	 * @return Formatted {@link #URL_FORMAT}. 
 	 */
 	public String toConnectionURL() {
-		return String.format(URL_FORMAT, URLEncoder.encode(host), new Integer(port), URLEncoder.encode(password));
+		return String.format(getUrlFormat(), URLEncoder.encode(host), port, URLEncoder.encode(password));
+	}
+	
+	public static void setStaticCommunicationConfiguration(AbstractCommunicationConfiguration configuration) {
+		staticConfig = configuration;
+	}
+
+	public static AbstractCommunicationConfiguration getStaticCommunicationConfiguration() {
+		return staticConfig;
+	}
+	
+	private String getUrlFormat() {
+		return staticConfig.getURLBase() + URL_FORMAT_PARAMETERS;
 	}
 }
