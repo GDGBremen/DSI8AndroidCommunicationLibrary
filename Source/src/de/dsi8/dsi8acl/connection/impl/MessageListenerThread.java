@@ -42,7 +42,7 @@ class MessageListenerThread extends Thread {
 	/**
 	 * The one, that want to know when something happen.
 	 */
-	private final TCPConnection initiator;
+	private final SocketConnection initiator;
 
 	/**
 	 * Handler for posting back received messages.
@@ -52,9 +52,9 @@ class MessageListenerThread extends Thread {
 	/**
 	 * Default constructor.
 	 * @param initiator The one, that want to know when something happen.
-	 * @param handler For post back messages to the {@link TCPConnection} (into the main thread).
+	 * @param handler For post back messages to the {@link SocketConnection} (into the main thread).
 	 */
-	public MessageListenerThread(TCPConnection initiator, Handler handler) {
+	public MessageListenerThread(SocketConnection initiator, Handler handler) {
 		this.initiator = initiator;
 		this.handler = handler;
 	}
@@ -102,7 +102,7 @@ class MessageListenerThread extends Thread {
 	
 	/**
 	 * {@link Handler#post} to the {@link #initiator} (into the main thread)
-	 * that an {@link TCPConnection#connectionProblem} occurred.
+	 * that an {@link SocketConnection#connectionProblem} occurred.
 	 * @param e The Problem
 	 */
 	private void connectionProblem(final Exception e) {

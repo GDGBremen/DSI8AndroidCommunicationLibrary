@@ -1,5 +1,7 @@
 package de.dsi8.dsi8acl.connection.model;
 
+import java.util.UUID;
+
 public abstract class AbstractCommunicationConfiguration {
 	
 	/**
@@ -9,6 +11,10 @@ public abstract class AbstractCommunicationConfiguration {
 	
 	public int getDefaultPort() {
 		return DEFAULT_PORT;
+	}
+	
+	public UUID getDefaultUUID() {
+		return null; // TODO: Generate a UUID.
 	}
 	
 	public abstract String getURLBase();

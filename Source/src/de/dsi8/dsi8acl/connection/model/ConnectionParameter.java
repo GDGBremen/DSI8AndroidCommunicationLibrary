@@ -25,10 +25,15 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.URLEncoder;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
+import org.apache.http.client.utils.URIUtils;
 import org.apache.http.conn.util.InetAddressUtils;
 
+import android.net.Uri;
 import android.net.UrlQuerySanitizer;
+import android.net.UrlQuerySanitizer.ParameterValuePair;
 import android.util.Log;
 
 /**
@@ -46,20 +51,23 @@ public class ConnectionParameter {
 	 */
 	private static final String LOG_TAG = "ConnectionParameter";
 	
-	/**
-	 * The base URL, that is used to receive intents from other Applications
-	 * (like the user click on the link in a mail).
-	 */
-	// TODO: comment
+	private static final String PROTOCOL_KEY = "protocol";
+	private static final String HOST_KEY = "host";
+	private static final String PORT_KEY = "port";
+	private static final String PASSWORD_KEY = "password";
 	
-	/**
-	 * The complete URL with parameters for formating.
-	 * @see String#format(String, Object...)
-	 */
-	private static final String URL_FORMAT_PARAMETERS = "?host=%1$s&port=%2$d&password=%3$s";
+	public static final String TCP_PROTOCOL = "tcp";
+	public static final String RFCOMM_PROTOCOL = "rfcomm";
+	
 	// TODO: comment
-
 	private static AbstractCommunicationConfiguration staticConfig;
+	
+	
+	private Map<String, String> parameters = new HashMap<String, String>();
+	
+	public ConnectionParameter() {
+		
+	}
 	
 	/**
 	 * Creates a new instance of {@link ConnectionParameter}
@@ -67,10 +75,11 @@ public class ConnectionParameter {
 	 * @param port {@link #port}
 	 * @param password {@link #password}
 	 */
-	public ConnectionParameter(String host, int port, String password) {
-		this.host = host;
-		this.port = port;
-		this.password = password;
+	public ConnectionParameter(String protocol, String host, int port, String password) {
+		setParameter(PROTOCOL_KEY, protocol);
+		setParameter(HOST_KEY, host);
+		setParameter(PORT_KEY, Integer.toString(port));
+		setParameter(PASSWORD_KEY, password);
 	}
 	
 	/**
@@ -80,36 +89,17 @@ public class ConnectionParameter {
 	public ConnectionParameter(String connectionURL) {
 		UrlQuerySanitizer query = new UrlQuerySanitizer(connectionURL);
 		
-		this.host = query.getValue("host");
-		this.port = Integer.parseInt(query.getValue("port"));
-		this.password = query.getValue("password");
-	}
-	
-	/**
-	 * Creates a new instance of {@link ConnectionParameter}.
-	 * @param hostWithPort A string that contains the {@link #host} and optionally the {@link #port}
-	 * 					   delimited by ':' from host. 
-	 * 					   If no port is given, the ({@link #DEFAULT_PORT}) is used.
-	 * @param password {@link #password}
-	 */
-	public ConnectionParameter(String hostWithPort, String password) {
-		int portDelmitter = hostWithPort.indexOf(':');
-		if(portDelmitter == -1) {
-			host = hostWithPort;
-			port = staticConfig.getDefaultPort();
-		} else {
-			host = hostWithPort.substring(0, portDelmitter);
-			port = Integer.parseInt(hostWithPort.substring(portDelmitter+1));
+		for (ParameterValuePair entry : query.getParameterList()) {
+			setParameter(entry.mParameter, entry.mValue);
 		}
-		this.password = password;
 	}
 
-	// TODO: This not here?
 	/**
 	 * {@inheritDoc}
 	 */
-	public static ConnectionParameter getDefaultConnectionDetails() {
-		return new ConnectionParameter(getLocalIpAddress(),
+	public static ConnectionParameter getDefaultTCPConnectionDetails() {
+		return new ConnectionParameter(TCP_PROTOCOL,
+									   getLocalIpAddress(),
 									   staticConfig.getDefaultPort(),
 									   staticConfig.getDefaultPassword());
 	}
@@ -134,27 +124,53 @@ public class ConnectionParameter {
 	    return "unknown";
 	}
 	
+	public String getParameter(String key) {
+		return parameters.get(key);
+	}
+	
+	public void setParameter(String key, String value) {
+		parameters.put(key, value);
+	}
+	
 	/**
 	 * IP/Hostname of the Host
 	 */
-	public final String host;
+	public String getHost() {
+		return getParameter(HOST_KEY);
+	}
 	
 	/**
 	 * Port where the Host application listen.
 	 */
-	public final int port;
+	public int getPort() {
+		int port = staticConfig.getDefaultPort();
+		try {
+			String val = getParameter(PORT_KEY);
+			if(val != null) {
+				port = Integer.parseInt(val);				
+			}
+		} catch(NumberFormatException ex) {
+		}
+		return port;
+	}
 	
 	/**
 	 * Password, for authentication on the host.
 	 */
-	public final String password;
+	public final String getPassword() {
+		return getParameter(PASSWORD_KEY);
+	}
+
+	public final String getProtocol() {
+		return getParameter(PROTOCOL_KEY);
+	}
 	
 	/**
 	 * Returns the IP/Hostname with port (if it's not the default port).
 	 */
 	@Override
 	public String toString() {
-		return host+((port != staticConfig.getDefaultPort())?":"+port:"");
+		return toConnectionURL();
 	}
 	
 	/**
@@ -164,7 +180,15 @@ public class ConnectionParameter {
 	 * @return Formatted {@link #URL_FORMAT}. 
 	 */
 	public String toConnectionURL() {
-		return String.format(getUrlFormat(), URLEncoder.encode(host), port, URLEncoder.encode(password));
+		StringBuilder builder = new StringBuilder(staticConfig.getURLBase());
+		builder.append("?");
+		
+		for (Map.Entry<String, String> entry : parameters.entrySet()) {
+			builder.append(Uri.encode(entry.getKey()) + "=" + Uri.encode(entry.getValue()) + "&");
+		}
+		
+		builder.deleteCharAt(builder.length() - 1);
+		return builder.toString();
 	}
 	
 	public static void setStaticCommunicationConfiguration(AbstractCommunicationConfiguration configuration) {
@@ -173,9 +197,5 @@ public class ConnectionParameter {
 
 	public static AbstractCommunicationConfiguration getStaticCommunicationConfiguration() {
 		return staticConfig;
-	}
-	
-	private String getUrlFormat() {
-		return staticConfig.getURLBase() + URL_FORMAT_PARAMETERS;
 	}
 }

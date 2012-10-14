@@ -2,7 +2,7 @@
     package="de.dsi8.dsi8acl"
     android:versionCode="1"
     android:versionName="1.0">
-    <uses-sdk android:minSdkVersion="3" android:targetSdkVersion="10" />
+    <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="10" />
     
     <uses-permission android:name="android.permission.INTERNET" />
 </manifest>

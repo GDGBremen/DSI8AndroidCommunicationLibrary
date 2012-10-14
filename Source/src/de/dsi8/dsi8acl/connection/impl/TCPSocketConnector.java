@@ -129,7 +129,8 @@ public class TCPSocketConnector implements IConnector {
 			if(result.getError() != null) {
 				newListenTask = socketConnectorListener.error(result.getError());
 			} else {
-				newListenTask = socketConnectorListener.connectionEstablished(new TCPConnection(result.getResult()));
+				SocketConnection connection = new SocketConnection(new TCPSocketWrapper(result.getResult()));
+				newListenTask = socketConnectorListener.connectionEstablished(connection);
 			}
 			
 			if(newListenTask) {

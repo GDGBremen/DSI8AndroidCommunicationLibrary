@@ -20,11 +20,11 @@
  ******************************************************************************/
 package de.dsi8.dsi8acl.connection.contract;
 
-import de.dsi8.dsi8acl.connection.impl.TCPConnection;
+import de.dsi8.dsi8acl.connection.impl.SocketConnection;
 import de.dsi8.dsi8acl.connection.model.Message;
 
 /**
- * The {@link TCPConnection} uses this listener to inform the implementor of this interface 
+ * The {@link SocketConnection} uses this listener to inform the implementor of this interface 
  * that something happens. (Usually {@link AbstractLogic})
  * @author sven
  *
@@ -32,13 +32,13 @@ import de.dsi8.dsi8acl.connection.model.Message;
 public interface IRemoteConnectionListener {
 	
 	/**
-	 * Called from the {@link TCPConnection} when a message is received.
+	 * Called from the {@link SocketConnection} when a message is received.
 	 * @param message The message.
 	 */
 	void messageReceived(Message message);
 	
 	/**
-	 * Called from the {@link TCPConnection} when a problem with the exception occurs.
+	 * Called from the {@link SocketConnection} when a problem with the exception occurs.
 	 * @param ex The Problem
 	 */
 	void connectionProblem(Exception ex);

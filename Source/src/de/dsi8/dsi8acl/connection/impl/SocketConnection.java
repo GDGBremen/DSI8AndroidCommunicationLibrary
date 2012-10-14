@@ -22,6 +22,7 @@ package de.dsi8.dsi8acl.connection.impl;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.net.UnknownHostException;
 
 import android.os.AsyncTask;
 import android.os.Handler;
@@ -33,6 +34,8 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 
 import de.dsi8.dsi8acl.connection.contract.IRemoteConnection;
 import de.dsi8.dsi8acl.connection.contract.IRemoteConnectionListener;
+import de.dsi8.dsi8acl.connection.contract.ISocket;
+import de.dsi8.dsi8acl.connection.model.ConnectionParameter;
 import de.dsi8.dsi8acl.connection.model.Message;
 
 /**
@@ -41,11 +44,11 @@ import de.dsi8.dsi8acl.connection.model.Message;
  * and deserialize the received messages.
  * @author sven
  */
-public class TCPConnection implements IRemoteConnection {
+public class SocketConnection implements IRemoteConnection {
 	/**
 	 *  A TCP socket to the other Android device (Host/Client).
 	 */
-	private final Socket socket;
+	private final ISocket socket;
 	/**
 	 * Will be informed, when something happen here.
 	 * @see IRemoteConnectionListener
@@ -65,12 +68,25 @@ public class TCPConnection implements IRemoteConnection {
 	 * @param dependencyContainer The {@link Socket}
 	 * @param listener Will be informed, when something happen here.
 	 */
-	public TCPConnection(Socket socket) {
+	public SocketConnection(ISocket socket) {
 		this.socket = socket;
 		jsonMapper.configure(Feature.AUTO_CLOSE_TARGET, false);
 		jsonMapper.configure(SerializationFeature.CLOSE_CLOSEABLE, false);
 		jsonMapper.configure(SerializationFeature.FLUSH_AFTER_WRITE_VALUE, true);
 		messageListenerThread = new MessageListenerThread(this, new Handler(Looper.getMainLooper()));
+	}
+	
+	// TODO: Connect to Bluetooth OR TCP
+	public static SocketConnection Connect(ConnectionParameter connectionParameter)
+			throws UnknownHostException, IOException, IllegalArgumentException
+	{
+		if(connectionParameter.getProtocol().equals(ConnectionParameter.TCP_PROTOCOL)) {
+			return new SocketConnection(new TCPSocketWrapper(connectionParameter));
+		} else if(connectionParameter.getProtocol().equals(ConnectionParameter.RFCOMM_PROTOCOL)) {
+			return new SocketConnection(new BluetoothSocketWrapper(connectionParameter));
+		} else {
+			throw new IllegalArgumentException("Unknown protocol");
+		}
 	}
 	
 	/**
@@ -142,7 +158,7 @@ public class TCPConnection implements IRemoteConnection {
 	 * Connection to the partner.
 	 * @return A {@link Socket}
 	 */
-	Socket getSocket() {
+	ISocket getSocket() {
 		return socket;
 	}
 
