@@ -123,7 +123,7 @@ public class ConnectionParameter {
 	    try {
 	    	for(NetworkInterface iface : Collections.list(NetworkInterface.getNetworkInterfaces())) {
 	    		for (InetAddress address : Collections.list(iface.getInetAddresses())) {
-	    			if (!address.isLoopbackAddress() && InetAddressUtils.isIPv4Address(address.getHostAddress())) {
+	    			if (!address.isLoopbackAddress() && address.isSiteLocalAddress() && InetAddressUtils.isIPv4Address(address.getHostAddress())) {
 	    				return address.getHostAddress().toString();
 	    			}
 	    		}
