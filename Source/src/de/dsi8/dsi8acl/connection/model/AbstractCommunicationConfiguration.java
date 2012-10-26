@@ -13,8 +13,12 @@ public abstract class AbstractCommunicationConfiguration {
 		return DEFAULT_PORT;
 	}
 	
-	public UUID getDefaultUUID() {
+	public UUID getUUID() {
 		return null; // TODO: Generate a UUID.
+	}
+	
+	public String getName() {
+		return "Unnammed"; // TODO: Generate a UUID.
 	}
 	
 	public abstract String getURLBase();
