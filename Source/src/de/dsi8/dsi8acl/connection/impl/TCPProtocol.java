@@ -71,13 +71,6 @@ public class TCPProtocol implements ISocketProtocol {
 	    return "unknown";
 	}
 	
-	/*
-	TODO:
-	 * Default port used by the host
-	
-	private static final int DEFAULT_PORT = 4254;*/
-	
-	
 	public int getDefaultPort() {
 		return defaultPort;
 	}
