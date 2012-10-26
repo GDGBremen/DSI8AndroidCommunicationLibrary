@@ -20,21 +20,14 @@
  ******************************************************************************/
 package de.dsi8.dsi8acl.connection.model;
 
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.net.URLEncoder;
-import java.util.Collections;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.apache.http.client.utils.URIUtils;
-import org.apache.http.conn.util.InetAddressUtils;
 
 import android.net.Uri;
 import android.net.UrlQuerySanitizer;
 import android.net.UrlQuerySanitizer.ParameterValuePair;
-import android.util.Log;
 
 /**
  * Data object that contains the information for connecting to the Host.
@@ -44,30 +37,13 @@ import android.util.Log;
  *
  */
 public class ConnectionParameter {
-	
-	/**
-	 * Used as Log Tag.
-	 * @see Log
-	 */
-	private static final String LOG_TAG = "ConnectionParameter";
-	
 	private static final String PROTOCOL_KEY = "protocol";
 	private static final String HOST_KEY = "host";
-	private static final String PORT_KEY = "port";
 	private static final String PASSWORD_KEY = "password";
-	
-	public static final String TCP_PROTOCOL = "tcp";
-	public static final String RFCOMM_PROTOCOL = "rfcomm";
-	
-	// TODO: comment
-	private static AbstractCommunicationConfiguration staticConfig;
-	
 	
 	private Map<String, String> parameters = new HashMap<String, String>();
 	
-	public ConnectionParameter() {
-		
-	}
+	private final String urlBase;
 	
 	/**
 	 * Creates a new instance of {@link ConnectionParameter}
@@ -75,53 +51,26 @@ public class ConnectionParameter {
 	 * @param port {@link #port}
 	 * @param password {@link #password}
 	 */
-	public ConnectionParameter(String protocol, String host, int port, String password) {
+	public ConnectionParameter(String urlBase, String protocol, String host, String password) {
+		this.urlBase = urlBase;
 		setParameter(PROTOCOL_KEY, protocol);
 		setParameter(HOST_KEY, host);
-		setParameter(PORT_KEY, Integer.toString(port));
 		setParameter(PASSWORD_KEY, password);
 	}
 	
 	/**
 	 * Builds the connection parameters from a connection URL, like it can receive in a intent.
 	 * @param connectionURL connection parameters encoded in a URL
+	 * @throws MalformedURLException 
 	 */
-	public ConnectionParameter(String connectionURL) {
+	public ConnectionParameter(String connectionURL) throws MalformedURLException {
+		int queryLength = new URL(connectionURL).getQuery().length(); 
+		this.urlBase = connectionURL.substring(connectionURL.length() - queryLength);
 		UrlQuerySanitizer query = new UrlQuerySanitizer(connectionURL);
 		
 		for (ParameterValuePair entry : query.getParameterList()) {
 			setParameter(entry.mParameter, entry.mValue);
 		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public static ConnectionParameter getDefaultTCPConnectionDetails() {
-		return new ConnectionParameter(TCP_PROTOCOL,
-									   getLocalIpAddress(),
-									   staticConfig.getDefaultPort(),
-									   staticConfig.getDefaultPassword());
-	}
-	
-	// TODO: This not here?
-	/**
-	 * Returns the first non-local IPv4 address of the device. 
-	 * @return IPv4 address as String or unknown, if no address is found.
-	 */
-	private static String getLocalIpAddress() {
-	    try {
-	    	for(NetworkInterface iface : Collections.list(NetworkInterface.getNetworkInterfaces())) {
-	    		for (InetAddress address : Collections.list(iface.getInetAddresses())) {
-	    			if (!address.isLoopbackAddress() && InetAddressUtils.isIPv4Address(address.getHostAddress())) {
-	    				return address.getHostAddress().toString();
-	    			}
-	    		}
-	    	}
-	    } catch (SocketException ex) {
-	        Log.e(LOG_TAG, ex.toString());
-	    }
-	    return "unknown";
 	}
 	
 	public String getParameter(String key) {
@@ -137,21 +86,6 @@ public class ConnectionParameter {
 	 */
 	public String getHost() {
 		return getParameter(HOST_KEY);
-	}
-	
-	/**
-	 * Port where the Host application listen.
-	 */
-	public int getPort() {
-		int port = staticConfig.getDefaultPort();
-		try {
-			String val = getParameter(PORT_KEY);
-			if(val != null) {
-				port = Integer.parseInt(val);				
-			}
-		} catch(NumberFormatException ex) {
-		}
-		return port;
 	}
 	
 	/**
@@ -180,7 +114,7 @@ public class ConnectionParameter {
 	 * @return Formatted {@link #URL_FORMAT}. 
 	 */
 	public String toConnectionURL() {
-		StringBuilder builder = new StringBuilder(staticConfig.getURLBase());
+		StringBuilder builder = new StringBuilder(urlBase);
 		builder.append("?");
 		
 		for (Map.Entry<String, String> entry : parameters.entrySet()) {
@@ -189,13 +123,5 @@ public class ConnectionParameter {
 		
 		builder.deleteCharAt(builder.length() - 1);
 		return builder.toString();
-	}
-	
-	public static void setStaticCommunicationConfiguration(AbstractCommunicationConfiguration configuration) {
-		staticConfig = configuration;
-	}
-
-	public static AbstractCommunicationConfiguration getStaticCommunicationConfiguration() {
-		return staticConfig;
 	}
 }

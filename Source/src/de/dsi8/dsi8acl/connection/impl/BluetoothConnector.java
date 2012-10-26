@@ -1,18 +1,25 @@
 package de.dsi8.dsi8acl.connection.impl;
 
+import java.util.UUID;
+
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
-import de.dsi8.dsi8acl.connection.model.AbstractCommunicationConfiguration;
-import de.dsi8.dsi8acl.connection.model.ConnectionParameter;
 
 public class BluetoothConnector extends AbstractSocketConnector<BluetoothSocketWrapper> {
 
+	private final UUID uuid;
+	private final String name;
+	
+	public BluetoothConnector(String name, UUID uuid) {
+		this.name = name;
+		this.uuid = uuid;
+	}
+	
 	@Override
 	protected BluetoothSocketWrapper doListening() throws Exception {
 		BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-		AbstractCommunicationConfiguration config = ConnectionParameter.getStaticCommunicationConfiguration();
-		BluetoothServerSocket serverSocket = adapter.listenUsingInsecureRfcommWithServiceRecord(config.getName(), config.getUUID());
+		BluetoothServerSocket serverSocket = adapter.listenUsingInsecureRfcommWithServiceRecord(name, uuid);
 		BluetoothSocket socket = serverSocket.accept();
 		serverSocket.close();
 		return new BluetoothSocketWrapper(socket);

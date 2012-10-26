@@ -23,6 +23,9 @@ package de.dsi8.dsi8acl.connection.impl;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import android.os.AsyncTask;
 import android.os.Handler;
@@ -35,6 +38,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import de.dsi8.dsi8acl.connection.contract.IRemoteConnection;
 import de.dsi8.dsi8acl.connection.contract.IRemoteConnectionListener;
 import de.dsi8.dsi8acl.connection.contract.ISocket;
+import de.dsi8.dsi8acl.connection.contract.ISocketProtocol;
 import de.dsi8.dsi8acl.connection.model.ConnectionParameter;
 import de.dsi8.dsi8acl.connection.model.Message;
 
@@ -76,17 +80,28 @@ public class SocketConnection implements IRemoteConnection {
 		messageListenerThread = new MessageListenerThread(this, new Handler(Looper.getMainLooper()));
 	}
 	
-	// TODO: Connect to Bluetooth OR TCP
+	static {
+		protocolList = Collections.synchronizedList(new ArrayList<ISocketProtocol>());
+	}
+	
+	private static final List<ISocketProtocol> protocolList;
+	
+	public static void registerProtocol(ISocketProtocol protocol)
+	{
+		if(protocol != null) {
+			protocolList.add(protocol);
+		}
+	}
+	
 	public static SocketConnection Connect(ConnectionParameter connectionParameter)
 			throws UnknownHostException, IOException, IllegalArgumentException
 	{
-		if(connectionParameter.getProtocol().equals(ConnectionParameter.TCP_PROTOCOL)) {
-			return new SocketConnection(new TCPSocketWrapper(connectionParameter));
-		} else if(connectionParameter.getProtocol().equals(ConnectionParameter.RFCOMM_PROTOCOL)) {
-			return new SocketConnection(new BluetoothSocketWrapper(connectionParameter));
-		} else {
-			throw new IllegalArgumentException("Unknown protocol");
+		for(ISocketProtocol protocol : protocolList) {
+			if(protocol.getProtocolName().equals(connectionParameter.getProtocol())) {
+				return new SocketConnection(protocol.connect(connectionParameter));
+			}
 		}
+		throw new IllegalArgumentException(connectionParameter.getProtocol() + " is unknown.");
 	}
 	
 	/**

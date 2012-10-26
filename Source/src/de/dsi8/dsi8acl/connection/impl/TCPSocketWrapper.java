@@ -13,8 +13,8 @@ public class TCPSocketWrapper implements ISocket {
 
 	private final Socket socket;
 	
-	public TCPSocketWrapper(ConnectionParameter connectionParameter) throws UnknownHostException, IOException {
-		socket = new Socket(connectionParameter.getHost(), connectionParameter.getPort());
+	public TCPSocketWrapper(ConnectionParameter parameter) throws UnknownHostException, IOException {
+		socket = new Socket(parameter.getHost(), TCPProtocol.getPort(parameter));
 	}
 	
 	public TCPSocketWrapper(Socket socket) {

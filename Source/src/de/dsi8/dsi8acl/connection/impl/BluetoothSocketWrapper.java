@@ -7,7 +7,6 @@ import java.io.OutputStream;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-
 import de.dsi8.dsi8acl.connection.contract.ISocket;
 import de.dsi8.dsi8acl.connection.model.ConnectionParameter;
 
@@ -19,7 +18,7 @@ public class BluetoothSocketWrapper implements ISocket {
 	public BluetoothSocketWrapper(ConnectionParameter connectionParameter) throws IOException {
 		BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
 		BluetoothDevice device = adapter.getRemoteDevice(connectionParameter.getHost());
-		socket = device.createInsecureRfcommSocketToServiceRecord(null); // TODO: uuid
+		socket = device.createInsecureRfcommSocketToServiceRecord(null); // TODO: connectionParameter.getUUID());
 		socket.connect();
 	}
 	
