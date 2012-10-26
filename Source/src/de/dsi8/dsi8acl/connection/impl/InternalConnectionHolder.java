@@ -5,7 +5,7 @@ import java.io.IOException;
 import de.dsi8.dsi8acl.connection.model.Message;
 
 
-public class InternalConnector {
+public class InternalConnectionHolder {
 	private InternalConnection firstConnection = new InternalConnection(this);
 	
 	private InternalConnection secondConnection = new InternalConnection(this);
@@ -23,7 +23,6 @@ public class InternalConnector {
 	public InternalConnection getFirstConnection() {
 		return firstConnection;
 	}
-
 
 	public InternalConnection getSecondConnection() {
 		return secondConnection;

@@ -11,7 +11,7 @@ public class InternalConnection implements IRemoteConnection {
 
 	private CommunicationPartner communicationPartner;
 	
-	private InternalConnector connector;
+	private InternalConnectionHolder connector;
 	
 	private IRemoteConnectionListener listener;
 	
@@ -19,7 +19,7 @@ public class InternalConnection implements IRemoteConnection {
 		return listener;
 	}
 
-	public InternalConnection(InternalConnector connector) {
+	public InternalConnection(InternalConnectionHolder connector) {
 		this.connector = connector;
 	}
 	
