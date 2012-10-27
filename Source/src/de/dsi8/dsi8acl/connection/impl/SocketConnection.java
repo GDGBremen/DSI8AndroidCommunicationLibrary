@@ -128,19 +128,19 @@ public class SocketConnection implements IRemoteConnection {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void sendMessage(Message message) throws IOException {
-		AsyncTask<Message, Integer, Integer> asyncTask = new AsyncTask<Message, Integer, Integer>() {
+	public void sendMessage(final Message message) throws IOException {
+		Thread t = new Thread() {
 			@Override
-			protected Integer doInBackground(Message... params) {
+			public void run() {
 				try {
-					jsonMapper.writeValue(socket.getOutputStream(), params[0]);
+					jsonMapper.writeValue(socket.getOutputStream(), message);
 				} catch (IOException ex) {
 					connectionProblem(ex);
 				}
-				return 0;
 			}
+			
 		};
-		asyncTask.execute(message);
+		t.start();
 	}
 	
 	/**
