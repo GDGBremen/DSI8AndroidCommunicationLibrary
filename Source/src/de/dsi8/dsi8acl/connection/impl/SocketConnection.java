@@ -93,7 +93,7 @@ public class SocketConnection implements IRemoteConnection {
 		}
 	}
 	
-	public static SocketConnection Connect(ConnectionParameter connectionParameter)
+	public static SocketConnection connect(ConnectionParameter connectionParameter)
 			throws UnknownHostException, IOException, IllegalArgumentException
 	{
 		for(ISocketProtocol protocol : protocolList) {
