@@ -164,7 +164,7 @@ public class CommunicationPartner implements ICommunicationPartner, IRemoteConne
 			remoteConnection.close(); // TODO: Implicit tested this?
 			
 		} catch(IOException ex) {
-			Log.w(LOG_TAG, "close", ex);
+			Log.w(LOG_TAG, "close" + id, ex);
 		}
 	}
 	
@@ -180,7 +180,7 @@ public class CommunicationPartner implements ICommunicationPartner, IRemoteConne
 		}
 		catch(IOException ex)
 		{
-			handleError(ex, "sendMessage");
+			handleError(ex, "sendMessage " + id);
 		}
 	}
 	
@@ -202,7 +202,7 @@ public class CommunicationPartner implements ICommunicationPartner, IRemoteConne
 	 */
 	@Override
 	public void handleError(Exception ex, String logMessage) {
-		Log.e(LOG_TAG, logMessage, ex);
+		Log.e(LOG_TAG, logMessage + "id: "+ id, ex);
 		
 		if(!closed) {
 			close();
